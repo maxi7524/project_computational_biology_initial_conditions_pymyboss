@@ -1,0 +1,57 @@
+name: sc_env
+channels:
+  - conda-forge # important - it need to be first (dependencies) 
+  - bioconda
+  - colomoto
+  - defaults # rarely actualized  
+dependencies:
+  # --- PYTHON ---
+  ## core
+  - python=3.12
+  - uv 
+  - pip
+  - ipykernel
+  ## .md formatting 
+  - tabulate
+  ## libraries 
+  ### analysis
+  - pandas
+  - numpy
+  - polars
+  - anndata # single cell standard
+  - mudata  # for multimodal data and complicated series
+  ### visualization
+  - matplotlib
+  - seaborn
+  ### stats
+  - scipy
+  - statsmodels
+  - scikit-learn
+  ### ML and models 
+  # - pytorch # somewhere else - takes a lot of time to configurate version
+  ### bioinformatics
+  - biopython
+  - scanpy
+  # - scvelo      # dyma,ocs amd time serecies (RNA velocity ?)
+  # - cellrank    # directions of differentining in time   
+  - maboss      # binary files
+  - pymaboss    # python wrapper
+  - pip:
+    - 'liana[extras]'
+  # --- BIOINFORMATICS tools (CLI / C++) ---
+  ## sequencing & QC
+  - samtools     # Manipulacja plikami BAM/SAM
+  - fastp        # Szybki QC (C++)
+  ## mapping (C++)
+  - kallisto     # Szybkie mapowanie single-cell
+  - bustools     # Przetwarzanie danych z kallisto
+  ## PSA AND MSA 
+  - blast 
+  - diamond 
+  - mafft 
+  ## structure 
+  - foldseek     # structure comparison (fast)
+  - pymol-open-source
+
+#TODO - add libraries conecterd to project !!!! adn also add libraries needed for 
+  
