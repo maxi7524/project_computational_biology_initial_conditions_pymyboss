@@ -20,6 +20,8 @@ dependencies:
   - polars
   - anndata # single cell standard
   - mudata  # for multimodal data and complicated series
+  # - louvain      # OBSOLETE need to also install package resouresedss numerical analysis of sc
+  - leidenalg    # newer version of louvain algorithm 
   ### visualization
   - matplotlib
   - seaborn
@@ -38,6 +40,7 @@ dependencies:
   - pymaboss    # python wrapper
   - pip:
     - 'liana[extras]'
+    - igraph
   # --- BIOINFORMATICS tools (CLI / C++) ---
   ## sequencing & QC
   - samtools     # Manipulacja plikami BAM/SAM
