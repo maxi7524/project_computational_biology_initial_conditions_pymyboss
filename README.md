@@ -9,6 +9,36 @@ Chcemy stworzyć narzędzie które mapuje wyniki z LIANA+ (to jest mamy tutaj re
 Będziemy chcieli to zrobić w kontekście klas komórek (bez danych przestrzennych) i z danymi przestrzennymi, wtedy będziemy uwzględniali dynamikę układu cząstek. CHcielibyśmy wtedy móc załadować taki układ. 
 
 
+
+# Struktura biblioteki 
+
+1. Inicjalizacja obiektu
+   0. Podajemy mu adata z informacjaprzestrzenną oraz wyliczonymi parami ligand receptor (będziemy całość symulować na jakimś zbiorze)
+   1. Podajemy mu informacje w jakims obiekcie w unstructured data znajduje się ten element
+2. Zdefiniowanie modelu / konfiguracja ustawień
+   1. MaBoss
+      - Jaki model, to jest jakie pary ligand receptor będziemy brali pod uwagę:
+        - Wgrywamy istniejacy model / modele i tylko te związki i szlaki bierzemy pod uwagę
+        - robimy jakąś metodę która przeszukuje istniejące modele żeby wszysktie liczyć na raz (to nie jest aż takie złożone, ponieważ wszystkie te modele uruchamiamy naraz, NIEZALEŻNIE (ponieważ są to inne szlaki metaboliczne/sygnałowe))
+   2. Informacja przestrzenna 
+      - Ustalić jakie metryki i ustawienia będziemy stosować w przypadku korzystania z liany 
+      - Tutaj jest to ważne ponieważ na podstawie tych informacji przestrzennych skonstruujemy zależności pomiędzy kolejnymi komórkami
+   3. Konfiguracja lagów:
+      - Zdefiniować w jaki sposób lagi będą konstruowane, muszą one brać pod uwagę i odległość przestrzenną i zależności znane już z "powszechnej wiedzy"
+3. Ewaluacja
+    1. Badany obszar
+      - Nie jesteśmy w stanie badać całej tkanki, zatem będziemy musieli podać podzbiór komórek (niekoniecznie spójny), i wtedy dla KAŻDEJ badanej tkanki bierzemy otocznie (które w przypadku tej odłeglóści zdefionwanej w 2.2 nie jest zerowe) i tą komórke z TYM otoczeniem będziemy symulować)
+      - Osobno mamy metode które bierzey te warunki początkowe podczas symulacji ...
+    2. Warunki początkowe
+        - Na początku trzeba wyliczyć warunki początkowe i dla komórki i dla otoczneia (dla tej jednej iteracji bierzemy pod uwagę otoczenie otoczenia) 
+        - następnie przejdziemy to iteracji, i nie będziemy już liczyć warunków dla otoczenia otoczenia
+    3. Symulacja
+        - Następnie będziemy iterowac kolejne kroki, żeby otrzymać i będzimy zapisywać stężenia badanych związków podczas kolejnych iteracji. 
+    > WAŻNE: wszystkie obliczenia są wykonywane DOPIERO na etapie ewaluacji, ponieważ w ten sposób oszczędzamy i pamięć i koszt obliczeniowy redukujemy. 
+    
+
+
+
 # NOTATKI
 
 ## Pytania koncepcyjne
