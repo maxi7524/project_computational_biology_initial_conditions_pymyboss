@@ -130,18 +130,33 @@ class SimulationRunner:
         
         # 1. Initialize all cell models and compute global 99th percentile baselines
         cell_models = self.manager.initialize_evaluation_models(self.adata, simulation_set, context_set)
-        all_tracked_cells = list(set(simulation_set) + set(context_set))
         
-        # Populate history buffer at t=0 from initialized models
+        # Merge cell tracking identifiers securely using set unions
+        all_tracked_cells = list(set(simulation_set).union(set(context_set)))
+        
+        # Precompute global quantiles to reconstruct identical baseline profiles safely
+        global_q99 = self.manager.compute_global_quantiles(self.adata, self.manager.all_nodes)
+        
+        # Populate history buffer at t=0 from expressions safely
         self.history_buffer[0.0] = {}
         for cell_id in all_tracked_cells:
             self.history_buffer[0.0][cell_id] = {}
-            # Take the probability of state 1 directly from the initial configuration
+            cell_idx = self.adata.obs_names.get_loc(cell_id)
+            
             for model_name, sim_inst in cell_models[cell_id].items():
                 for node in self.manager.network_nodes[model_name]:
-                    # MaBoSS internal istate structure lookup
-                    istate_prob_1 = sim_inst.network.get_istate(node)[1] # Index 1 corresponds to state 1
-                    self.history_buffer[0.0][cell_id][node] = istate_prob_1
+                    # Match exact percentile normalization logic used during model initialization
+                    if node in self.adata.var_names:
+                        if hasattr(self.adata.X, "toarray"):
+                            raw_val = self.adata[cell_idx, node].X.toarray()[0, 0]
+                        else:
+                            raw_val = self.adata[cell_idx, node].X[0, node] if hasattr(self.adata.X, "ndim") and self.adata.X.ndim > 1 else self.adata[cell_idx, node].X
+                        
+                        prob_1 = min(1.0, float(raw_val / global_q99[node]))
+                    else:
+                        prob_1 = 0.0
+                        
+                    self.history_buffer[0.0][cell_id][node] = prob_1
 
         # Prepare the output CSV file and write header lines
         with open(output_csv_path, mode='w', newline='') as csv_file:

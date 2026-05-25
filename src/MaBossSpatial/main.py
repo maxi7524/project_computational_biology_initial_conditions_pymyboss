@@ -6,6 +6,7 @@ from .maboss_module.model_manager import MaBossManager
 from .spatial_module.environment import SpatialEnvironment
 from .simulation.time_lag import TimeLagEstimator
 from .simulation.runner import SimulationRunner
+from .utils.utils_check_configuration import generate_config_report
 
 class SpatialBooleanPipeline:
     """
@@ -36,12 +37,18 @@ class SpatialBooleanPipeline:
         # Simulation technical configuration
         self.sim_settings = {}
 
+    #############################
+    # Configuration Setters
+    #############################
+
+
     def SetMaBossModel(self, mode: str = "pretrained", model_name='be_creative', **kwargs: Any) -> None:
         """
         Loads and configures the intracellular Boolean network model.
 
-        Currently supports loading predefined models. Future updates will include
-        de novo network reconstruction via OmniPath.
+        Currently supports loading predefined models. 
+        
+        Future updates will include de novo network reconstruction via OmniPath.
 
         Multiple independent pathways are managed in parallel during execution.
 
@@ -49,8 +56,7 @@ class SpatialBooleanPipeline:
 
         :param mode: The mode of model creation. Currently only 'pretrained' is active.
         :type mode: str
-        :param kwargs: Arbitrary keyword arguments containing configuration paths.
-                       Expects ``bnd_path`` and ``cfg_path`` for 'pretrained' mode.
+        :param kwargs: Configuration paths containing ``bnd_path`` and ``cfg_path``.
         :type kwargs: dict
         :raises ValueError: If an unsupported mode is provided.
         :return: None
@@ -97,17 +103,12 @@ class SpatialBooleanPipeline:
         if not self.maboss_manager.models:
             raise RuntimeError("MaBoSS model must be set via SetMaBossModel before configuring time lags.")
             
+        # Store estimator instance without immediate calculation
         self.time_estimator = TimeLagEstimator(strategy=strategy, custom_lags=custom_lags)
-        
-        # Extract active receptors dynamically from liana unstructured metadata in adata
-        liana_df = self.adata.uns[self.liana_key]
-        active_receptors = liana_df['receptor_complex'].unique().tolist()
-        
-        # Cross-reference with loaded nodes across models
-        self.time_estimator.calculate_lags(
-            network_nodes=self.maboss_manager.all_nodes, 
-            active_receptors=active_receptors
-        )
+
+    #############################
+    # Pipeline functionality
+    #############################
 
     def SetSimulationSettings(self, max_time: float, delta_t: float, sample_count: int, sim_type: str = "stochastic") -> None:
         """
@@ -133,6 +134,8 @@ class SpatialBooleanPipeline:
             "type": sim_type
         }
 
+    
+
     def RunPipeline(self, target_cell_ids: List[str], output_csv_path: str) -> None:
         #TODO change implementations - include gemini part for repair 
         """
@@ -149,7 +152,7 @@ class SpatialBooleanPipeline:
         :return: None
         """
         if not self.maboss_manager.models:
-            raise RuntimeError("MaBoSS models is not configured.")
+            raise RuntimeError("MaBoSS models are not configured.")
         if not self.spatial_env:
             raise RuntimeError("Spatial settings are not configured.")
         if not self.time_estimator:
@@ -162,14 +165,27 @@ class SpatialBooleanPipeline:
         self.spatial_env.compute_neighbors_graph(self.adata)
         
         # 2. Extract exact 1-hop (simulation) and 2-hop (initial context boundary) cell zones
-        # POPRAWIONE: Dopasowane do rzeczywistych metod w environment.py
         simulation_set, context_set = self.spatial_env.extract_neighborhood_zones(self.adata, target_cell_ids)
+        
+        # 3. LAZY LAG CALCULATION: Compute lags now when active receptors and nodes are fully resolved
+        print("Evaluating biological time lags for active pathways...")
+        liana_df = self.adata.uns[self.liana_key]
+        active_receptors = liana_df['receptor_complex'].unique().tolist()
+        
+        # Map intracellular path rules right before running the simulation blocks
+        self.time_estimator.calculate_intracellular_lags(
+            network_nodes=self.maboss_manager.all_nodes, 
+            active_receptors=active_receptors
+        )
+        
+        # 4. RUN AUTOMATIC PRE-FLIGHT CONFIGURATION CHECK
+        # Automatically outputs the structured report right before entering the simulation loop
+        self.CheckConfiguration()
         
         print(f"Pipeline initialized. Active simulation set: {len(simulation_set)} cells. "
               f"Background context set: {len(context_set)} cells.")
         
-        # 3. Instantiate and delegate execution to the SimulationRunner module
-        # POPRAWIONE: Przekazanie sterowania do runner.py
+        # 5. Instantiate and delegate execution to the SimulationRunner module
         runner = SimulationRunner(
             adata=self.adata,
             spatial_env=self.spatial_env,
@@ -183,4 +199,27 @@ class SpatialBooleanPipeline:
             context_set=context_set,
             sim_settings=self.sim_settings,
             output_csv_path=output_csv_path
+        )
+
+    #############################
+    # Internal helpers
+    #############################
+
+    ## ----- Sanity check: configuration -----
+
+    def CheckConfiguration(self) -> None:
+        """
+        Runs a pre-execution audit on the loaded data and model specifications.
+
+        Evaluates gene nomenclature matches, checks spatial graphs, and details
+        time delay matrices before starting the stochastic simulations.
+        
+        :return: None
+        """
+        generate_config_report(
+            adata=self.adata,
+            liana_key=self.liana_key,
+            manager=self.maboss_manager,
+            spatial_env=self.spatial_env,
+            time_estimator=self.time_estimator
         )

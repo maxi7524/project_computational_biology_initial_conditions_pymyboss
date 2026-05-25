@@ -31,6 +31,8 @@ class MaBossManager:
         self.models: Dict[str, Any] = {}
         # Cached list of nodes present across the loaded models
         self.network_nodes: Dict[str, List[str]] = {}
+        # Internal cache to store structural file paths for safe lazy duplication
+        self.model_paths: Dict[str, Dict[str, str]] = {}
 
     def load_pretrained(self, bnd_path: str, cfg_path: str, model_name: str) -> None:
         """
@@ -50,6 +52,9 @@ class MaBossManager:
 
         # maboss.load returns a maboss.Simulation object
         simulation_obj = maboss.load(bnd_path, cfg_path)
+
+        # Save file references to bypass deepcopy restrictions with compiled C++ wrappers
+        self.model_paths[model_name] = {"bnd": bnd_path, "cfg": cfg_path}
         
         self.models[model_name] = simulation_obj
         self.network_nodes[model_name] = list(simulation_obj.network.keys())
@@ -147,15 +152,17 @@ class MaBossManager:
         global_q99 = self.compute_global_quantiles(adata, all_active_nodes)
         
         # Combine both sets to ensure we know the initial state of everything in our spatial boundaries
-        all_tracked_cells = list(set(simulation_set) + set(context_set))
+        all_tracked_cells = list(set(simulation_set).union(set(context_set)))
         
         for cell_id in all_tracked_cells:
             initialized_cell_systems[cell_id] = {}
             
             # For every cell, clone the template models and calibrate them using the cell's expression profile
             for model_name, template_sim in self.models.items():
-                # Deep copy the template simulation to avoid altering the base reference model
-                cell_sim_instance = copy.deepcopy(template_sim)
+                # FIX: Reload via file paths instead of copy.deepcopy to bypass SWIG-compiled memory constraints
+                bnd_p = self.model_paths[model_name]["bnd"]
+                cfg_p = self.model_paths[model_name]["cfg"]
+                cell_sim_instance = maboss.load(bnd_p, cfg_p)
                 
                 # Fetch cell index in the anndata object
                 cell_idx = adata.obs_names.get_loc(cell_id)

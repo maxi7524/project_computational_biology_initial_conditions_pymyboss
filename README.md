@@ -49,6 +49,11 @@ Mamy informacje o komunikacje zewnątrz komórkowej oraz o intensywności wystę
 Wydaje mi sie żę trzeba to zintegrować z istniejącymi modelami i wtedy podłączyćbo inaczej brakuje nam informacji wewntrz komórkowej skąd ewnetuanlie ją wziąć
 
 
+## Przygotowanie danych
+
+### 1. Pobranie danych spatial-sc 
+Żeby wykonać
+
 ## LIANA
 
 Pozwala na odczytanie przestrzennych danych SC a następnie przeprowadzenie analizy dotyczącej tego jakie *szlaki sygnałowe* są aktywne. 
@@ -89,3 +94,66 @@ UpPMaBoSS computes the evolution and the dynamics of a population of cells takin
 
 Simulations with UpPMaBoSS are based on a logical model describing the intracellular regulations (logical regulatory graph complemented with logical rules), taking into account cell death, cell division, and intercellular communications.
 ```
+
+
+# Dokumentacja do zrobienia 
+
+Dokumentacja będzie rozbita na główne README.md w którym będą linki do poszczególnych plików .md w folderze `docs`
+
+## Description 
+Ogólny opis co jest zaimplementowane w bibliotece, jak tego używać 
+
+## Installation (separate .md)
+Jak zainstalować tą bibliotekę,
+- instrukcja jak zainstalować maboss'a 
+- gotowy skrypt do środowiska micromamba/conda
+- informacja jak uruchomić bibliotekę w trybie developerskim (jak to ustawić inaczej)
+
+## Report file (separate .md)
+
+Here we will present report in our .md with links to given .ipynb notebooks which contains scripts with remarks about methodology, and gathered information about results. 
+
+## Tutorial - basics (separate .md) 
+Wytłumaczenie jak z tego korzystać, co jest ważne w użyciu i dlaczego, więc kolejno będziemy omawiać
+- jakie dane potrzebujemy 
+- jak procesować takie dane
+- jak potem ustawić Liane żeby odpowiednio przejść potok (resources, dla myszy i człowieka omówić) 
+- potem jak ustawić model i dlaczego
+- jak potem wywołać trenowanie
+- jak interpretować wyniki, na co zwrócić uwagę
+
+> Format .ipynb który opisuje to kroki, musi być taki ze się odpala: uruchom wszystko u góry i to idzie (z uwagą że trzeba osobno dane pobrać)
+>
+
+### Data type
+Spatial single cell data
+- write here about data format, sites were to download this and link to .ipynb tutorial to certain section ()
+- and give separate link here for scripts which download example model and datatsets (with information about files sizes) 
+
+### Preprocessing data
+How to preprocess files and why we need this to work - na co zwrócić uwagę
+
+
+### Liana setup 
+About ghow 
+
+
+### Model setup 
+
+### Training settings and how to run it 
+
+
+## Tutorial - results interpretation (separate .md)
+
+Here we will present simple
+
+
+
+
+## Model adjustment (separate .md) 
+Here we will describe how to change certain modules of models, and describe structure of library for users who want to modify existing model. 
+
+
+
+
+## General remarks 
