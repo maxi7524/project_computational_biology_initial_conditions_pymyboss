@@ -5,6 +5,7 @@ import anndata
 from .maboss_module.model_manager import MaBossManager
 from .spatial_module.environment import SpatialEnvironment
 from .simulation.time_lag import TimeLagEstimator
+from .simulation.runner import SimulationRunner
 
 class SpatialBooleanPipeline:
     """
@@ -29,13 +30,13 @@ class SpatialBooleanPipeline:
         
         # Initialize sub-modules
         self.maboss_manager = MaBossManager()
-        self.spatial_env = None
+        self.spatial_env = SpatialEnvironment()
         self.time_estimator = None
         
         # Simulation technical configuration
         self.sim_settings = {}
 
-    def SetMaBossModel(self, mode: str = "pretrained", **kwargs: Any) -> None:
+    def SetMaBossModel(self, mode: str = "pretrained", model_name='be_creative', **kwargs: Any) -> None:
         """
         Loads and configures the intracellular Boolean network model.
 
@@ -59,7 +60,7 @@ class SpatialBooleanPipeline:
             cfg_path = kwargs.get("cfg_path")
             if not bnd_path or not cfg_path:
                 raise ValueError("Both 'bnd_path' and 'cfg_path' must be provided for pretrained mode.")
-            self.maboss_manager.load_pretrained(bnd_path, cfg_path)
+            self.maboss_manager.load_pretrained(bnd_path, cfg_path, model_name)
         elif mode == "denovo":
             # Placeholder for dynamic creation using OmniPath and decoupler
             pass
@@ -93,7 +94,20 @@ class SpatialBooleanPipeline:
         :type custom_lags: dict, optional
         :return: None
         """
+        if not self.maboss_manager.models:
+            raise RuntimeError("MaBoSS model must be set via SetMaBossModel before configuring time lags.")
+            
         self.time_estimator = TimeLagEstimator(strategy=strategy, custom_lags=custom_lags)
+        
+        # Extract active receptors dynamically from liana unstructured metadata in adata
+        liana_df = self.adata.uns[self.liana_key]
+        active_receptors = liana_df['receptor_complex'].unique().tolist()
+        
+        # Cross-reference with loaded nodes across models
+        self.time_estimator.calculate_lags(
+            network_nodes=self.maboss_manager.all_nodes, 
+            active_receptors=active_receptors
+        )
 
     def SetSimulationSettings(self, max_time: float, delta_t: float, sample_count: int, sim_type: str = "stochastic") -> None:
         """
@@ -120,7 +134,7 @@ class SpatialBooleanPipeline:
         }
 
     def RunPipeline(self, target_cell_ids: List[str], output_csv_path: str) -> None:
-        #TODO change implementations
+        #TODO change implementations - include gemini part for repair 
         """
         Executes the piecewise simulation loop for the selected cells.
 
@@ -134,8 +148,8 @@ class SpatialBooleanPipeline:
         :raises RuntimeError: If required modules or configurations are missing.
         :return: None
         """
-        if not self.maboss_manager.model:
-            raise RuntimeError("MaBoSS model is not configured.")
+        if not self.maboss_manager.models:
+            raise RuntimeError("MaBoSS models is not configured.")
         if not self.spatial_env:
             raise RuntimeError("Spatial settings are not configured.")
         if not self.time_estimator:
@@ -143,15 +157,30 @@ class SpatialBooleanPipeline:
         if not self.sim_settings:
             raise RuntimeError("Simulation settings are not configured.")
 
-        # 1. Filter and identify the exact subset of cells to simulate based on targets and neighborhood
-        simulation_subset = self.spatial_env.filter_simulation_nodes(self.adata, target_cell_ids)
+        # 1. Compute spatial neighbors graph via LIANA+ lazily
+        print("Computing spatial neighborhood connectivity matrix via LIANA+...")
+        self.spatial_env.compute_neighbors_graph(self.adata)
         
-        # 2. Establish initial cell states (t=0) using the 99th percentile normalization logic
-        initial_states = self.maboss_manager.initialize_cell_states(self.adata, self.liana_key, simulation_subset)
+        # 2. Extract exact 1-hop (simulation) and 2-hop (initial context boundary) cell zones
+        # POPRAWIONE: Dopasowane do rzeczywistych metod w environment.py
+        simulation_set, context_set = self.spatial_env.extract_neighborhood_zones(self.adata, target_cell_ids)
         
-        # 3. Trigger the simulation execution loop across time intervals
-        # Implementation details will be managed by the simulation runner module
-        print(f"Pipeline initialized for {len(simulation_subset)} cells. Invoking simulation loop...")
+        print(f"Pipeline initialized. Active simulation set: {len(simulation_set)} cells. "
+              f"Background context set: {len(context_set)} cells.")
         
-        # The execution logic will call the simulation runner, handling historical data
-        # and streaming directly to output_csv_path.
+        # 3. Instantiate and delegate execution to the SimulationRunner module
+        # POPRAWIONE: Przekazanie sterowania do runner.py
+        runner = SimulationRunner(
+            adata=self.adata,
+            spatial_env=self.spatial_env,
+            time_estimator=self.time_estimator,
+            manager=self.maboss_manager
+        )
+        
+        print("Triggering continuous hybrid piecewise simulation loop. Streaming rows to CSV...")
+        runner.RunPiecewiseSimulation(
+            simulation_set=simulation_set,
+            context_set=context_set,
+            sim_settings=self.sim_settings,
+            output_csv_path=output_csv_path
+        )
