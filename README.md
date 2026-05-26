@@ -146,15 +146,22 @@ In pipeline we use `spatial-sc` data. Our data consists of:
 ##### ...
 #TODO - dodać kolejne typy, (bazując na tych naszych analizach, ponieważ będziemy odpalać rózne typy danych więc będziemy mieli już gotowe skrypty które to ładują) 
 
-### Preprocessing data
 
-#### Preserving raw matrix
+
+### Liana setup 
+Here we setup liana graph considering results from `liana+` article and documentation.
+
+You can perform it by manually going through following steps, or you can use `BuildSpatialContext` method which automatically go through those steps and sets optimal parameters. 
+
+#### Preprocessing data
+
+##### Preserving raw matrix
 To preserve raw matrix (which is later used), we save by:
 ```python
 adata.raw = raw
 ``` 
 
-#### Library size normalization 
+##### Library size normalization 
 We normalize library size, through different cells 
 
 To unify counts due to different cells coverage we apply normalization:
@@ -162,7 +169,7 @@ To unify counts due to different cells coverage we apply normalization:
 sc.pp.normalize_total(adata, target_sum=1e4)
 ```
 
-#### Log-transformation
+##### Log-transformation
 We transform our data by applying transformation $f$ given by:
 $$f(x) = \mathrm{ln}(x+1)$$
 
@@ -171,11 +178,6 @@ Some genes have much bigger expression then the others. In `liana+` algorithms a
 ```shell
 sc.pp.log1p(adata)
 ```
-
-### Liana setup 
-Here we setup liana graph considering results from `liana+` article and documentation.
-
-You can perform it by manually going through following steps, or you can use `TODO - insert implemented method` which automatically go through those steps. 
 
 #### Create continuous graph  
 Here we create graph with computed distances between cells
@@ -234,7 +236,12 @@ mouse_resource = li.rs.select_resource(resource_name='mouseconsensus')
 
 ### Model setup 
 
-### Training settings and how to run it 
+Explain how we setup certain parameters and why we do it. 
+
+#### Simulation settings and how to run it 
+
+### Simulation methodology
+Deeply explanation of simulation
 
 
 ## Tutorial - results interpretation (separate .md)
