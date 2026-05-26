@@ -126,13 +126,35 @@ Wytłumaczenie jak z tego korzystać, co jest ważne w użyciu i dlaczego, więc
 >
 
 ### Data type
-Spatial single cell data
-- write here about data format, sites were to download this and link to .ipynb tutorial to certain section ()
-- and give separate link here for scripts which download example model and datatsets (with information about files sizes) 
+
+#### Goal
+We want to load `spatial-sc` into `adata` object. 
+
+#### Explanation 
+In pipeline we use `spatial-sc` data. Our data consists of:
+- `HDF5` file, which contains compressed count matrix ($\mathrm{positions} \times \mathrm{genes}$) representing UMI barcodes counts 
+- `spatial` folder, which contains tissue positions which contains mapping of $\mathrm{barcode_i} \rightarrow \mathrm{pixel\ coordination}:=(X_i,Y_i)$
+
+
+#### Methodology - data loading examples 
+
+##### 10x Genomics
+- [Example download script](link do skryptu)
+- [Example load example](link do notebook'a i odpowiedniego paragrafu)
+
+
+##### ...
+#TODO - dodać kolejne typy, (bazując na tych naszych analizach, ponieważ będziemy odpalać rózne typy danych więc będziemy mieli już gotowe skrypty które to ładują) 
 
 ### Preprocessing data
-How to preprocess files and why we need this to work - na co zwrócić uwagę
 
+#### Preserving raw matrix
+To preserve raw matrix (which is later used), we save by:
+```python
+adata.raw = raw
+``` 
+
+#### Normalization 
 
 ### Liana setup 
 About ghow 
