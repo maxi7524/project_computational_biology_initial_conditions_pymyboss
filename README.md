@@ -154,10 +154,82 @@ To preserve raw matrix (which is later used), we save by:
 adata.raw = raw
 ``` 
 
-#### Normalization 
+#### Library size normalization 
+We normalize library size, through different cells 
+
+To unify counts due to different cells coverage we apply normalization:
+```python
+sc.pp.normalize_total(adata, target_sum=1e4)
+```
+
+#### Log-transformation
+We transform our data by applying transformation $f$ given by:
+$$f(x) = \mathrm{ln}(x+1)$$
+
+Some genes have much bigger expression then the others. In `liana+` algorithms are sensitive for scale, as in algorithms we mostly calculate dot products or similiar operators. 
+
+```shell
+sc.pp.log1p(adata)
+```
 
 ### Liana setup 
-About ghow 
+Here we setup liana graph considering results from `liana+` article and documentation.
+
+You can perform it by manually going through following steps, or you can use `TODO - insert implemented method` which automatically go through those steps. 
+
+#### Create continuous graph  
+Here we create graph with computed distances between cells
+
+To obtain any neighbors we need to adjust bandwidth parameter. We obtain it by using  `li.ut.query_bandwidth` and taking smallest bandwidth with at least 6 neighbors. We set `cutoff=0.1` to get rid of noise and `set_diag=False` to obtain 0 for it self - it is important, otherwise intracellular communication is introduced as extracellular. 
+
+```python
+# obtain bandwidth data
+plot, df_bandwith_vs_neighbours = li.ut.query_bandwidth(coordinates=adata.obsm['spatial'], start=0, end=500, interval_n=20)
+df_bandwith_vs_neighbours
+
+# obtain minimum bandwidth
+min_bandwidth = df_bandwith_vs_neighbours[df_bandwith_vs_neighbours['neighbours'] >= 6]['bandwith'].min()
+
+# calculate neighbors 
+li.utils.spatial_neighbors(
+    adata, 
+    bandwidth=min_bandwidth, 
+    cutoff=0.1, 
+    kernel='gaussian', 
+    set_diag=True
+)
+```
+
+#### Identify ligand receptor pair
+Here we compute Ligand-Receptor pairs.
+
+  From literature we use `local_name='cosine'` as it not sensitive for ... . We do not use permutational test (`n_perms=None`) because we not look for unique biological signal. We use `mask_negatives=True`, to get rid of local noise (low expression ligand/receptor below mean value of noise). 
+
+```python
+li.mt.bivariate(
+    adata,
+    local_name='cosine',
+    global_name=None,
+    # REMARK - this depends on speciee
+    resource_name='consensus',
+     # graph key for `SpatialEnvironment`
+    connectivity_key='spatial_connectivities',
+    n_perms=None,
+    mask_negatives=True, # we remove low-low 
+    use_raw=False,'
+    # for analysis reproducibility
+    seed=1337
+)
+```
+
+To obtain ligand-receptor pairs we need to provide `consensus` (databases with ligand receptor pair for **certain specie**), `connectivity` which is calculated distance from `spatial_neighbors` (last paragraph) and similiarity metric, which by default we set ... (#TODO - join with last part) 
+
+For mouse species i suggest using following resource: 
+```python
+mouse_resource = li.rs.select_resource(resource_name='mouseconsensus')
+
+```
+
 
 
 ### Model setup 
@@ -169,7 +241,9 @@ About ghow
 
 Here we will present simple
 
+### Training loop
 
+Here we explain deeply methodology what model does during simulation. 
 
 
 ## Model adjustment (separate .md) 

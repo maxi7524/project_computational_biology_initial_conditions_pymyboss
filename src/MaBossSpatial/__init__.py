@@ -1,1 +1,1 @@
-from .main import SpatialBooleanPipeline
+from .wrapper import SpatialBooleanPipeline

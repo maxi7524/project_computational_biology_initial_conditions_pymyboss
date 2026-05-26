@@ -1,9 +1,9 @@
-# src/main.py
+# src/wrapper.py
 
 from typing import Dict, Any, List
 import anndata
 from .maboss_module.model_manager import MaBossManager
-from .spatial_module.environment import SpatialEnvironment
+from .spatial_module.environment import LianaSpatialEnvironment
 from .simulation.time_lag import TimeLagEstimator
 from .simulation.runner import SimulationRunner
 from .utils.utils_check_configuration import generate_config_report
@@ -22,7 +22,12 @@ class SpatialBooleanPipeline:
     :type liana_uns_key: str
     """
     
-    def __init__(self, spatial_data: anndata.AnnData, liana_uns_key: str):
+    def __init__(self, 
+                 spatial_data: anndata.AnnData, 
+                 liana_uns_key: str, 
+                 connectivity_key: str = "spatial", 
+                 liana_key: str = "liana_res"
+        ):
         """
         Constructor method.
         """
@@ -31,7 +36,7 @@ class SpatialBooleanPipeline:
         
         # Initialize sub-modules
         self.maboss_manager = MaBossManager()
-        self.spatial_env = SpatialEnvironment()
+        self.spatial_env = LianaSpatialEnvironment(connectivity_key=connectivity_key, liana_key=liana_key)
         self.time_estimator = None
         
         # Simulation technical configuration
@@ -73,22 +78,24 @@ class SpatialBooleanPipeline:
         else:
             raise ValueError(f"Unknown MaBoSS model mode: {mode}")
 
-    def SetSpatialSettings(self, bandwidth: float, cutoff: float = 0.1, kernel: str = "gaussian") -> None:
+    def BuildSpatialContext(self, config_spatial_neighbors: Dict[str, Any] = {}, config_liana_bivariate: Dict[str, Any] = {}) -> None:
         """
-        Configures the spatial neighborhood parameters utilizing LIANA+'s internal optimization.
+        Triggers the automated preprocessing, structural graph generation, and signaling matrix derivation.
 
-        This method stores the parameters required to run ``li.ut.spatial_neighbors`` 
-        during the lazy evaluation stage.
+        Delegates heavy configuration auditing and graph extraction to the LianaSpatialEnvironment module.
 
-        :param bandwidth: Signaling length/maximum distance for cell communication.
-        :type bandwidth: float
-        :param cutoff: Proximity values below this threshold will be set to 0. Defaults to 0.1.
-        :type cutoff: float
-        :param kernel: Kernel function type ('gaussian', 'exponential', 'linear'). Defaults to 'gaussian'.
-        :type kernel: str
+        :param config_spatial_neighbors: Parameter configuration dictionary for neighbor graph building.
+        :type config_spatial_neighbors: dict
+        :param config_liana_bivariate: Parameter configuration dictionary for bivariate association computations.
+        :type config_liana_bivariate: dict
         :return: None
         """
-        self.spatial_env.configure_kernel(bandwidth=bandwidth, cutoff=cutoff, kernel=kernel)
+        # Execute context pipeline directly modifying self.adata in-place
+        self.adata = self.spatial_env.build_spatial_context(
+            adata=self.adata,
+            config_spatial_neighbors=config_spatial_neighbors,
+            config_liana_bivariate=config_liana_bivariate
+        )
 
     def SetTimeLags(self, strategy: str = "topological", custom_lags: Dict[str, float] = None) -> None:
         """
@@ -160,32 +167,41 @@ class SpatialBooleanPipeline:
         if not self.sim_settings:
             raise RuntimeError("Simulation settings are not configured.")
 
-        # 1. Compute spatial neighbors graph via LIANA+ lazily
-        print("Computing spatial neighborhood connectivity matrix via LIANA+...")
-        self.spatial_env.compute_neighbors_graph(self.adata)
-        
-        # 2. Extract exact 1-hop (simulation) and 2-hop (initial context boundary) cell zones
-        simulation_set, context_set = self.spatial_env.extract_neighborhood_zones(self.adata, target_cell_ids)
-        
-        # 3. LAZY LAG CALCULATION: Compute lags now when active receptors and nodes are fully resolved
+        # --- Step 1: Isolate Spatial Subgraph Domains ---
+        print("Extracting active simulation and context boundary subgraphs...")
+        simulation_set, context_set = self.spatial_env.extract_simulation_and_context_sets(
+            self.adata, target_cell_ids
+        )
+
+        # --- Step 2: Lazy Time-Lag Estimation via Active Receptors ---
         print("Evaluating biological time lags for active pathways...")
-        liana_df = self.adata.uns[self.liana_key]
-        active_receptors = liana_df['receptor_complex'].unique().tolist()
+        liana_anndata = self.adata.uns[self.liana_key]
+        
+        # Robust extraction from AnnData .var dataframe or fallback to var_names parsing
+        if 'receptor_complex' in liana_anndata.var.columns:
+            active_receptors = liana_anndata.var['receptor_complex'].unique().tolist()
+        elif 'receptor' in liana_anndata.var.columns:
+            active_receptors = liana_anndata.var['receptor'].unique().tolist()
+        else:
+            # Fallback parse if columns are missing but var_names follow the 'Ligand^Receptor' convention
+            active_receptors = list(set([
+                pair.split('^')[1] for pair in liana_anndata.var_names if '^' in pair
+            ]))
         
         # Map intracellular path rules right before running the simulation blocks
         self.time_estimator.calculate_intracellular_lags(
             network_nodes=self.maboss_manager.all_nodes, 
             active_receptors=active_receptors
         )
-        
-        # 4. RUN AUTOMATIC PRE-FLIGHT CONFIGURATION CHECK
+
+        # --- Step 3: Pre-Flight Configuration Check ---
         # Automatically outputs the structured report right before entering the simulation loop
         self.CheckConfiguration()
         
         print(f"Pipeline initialized. Active simulation set: {len(simulation_set)} cells. "
               f"Background context set: {len(context_set)} cells.")
         
-        # 5. Instantiate and delegate execution to the SimulationRunner module
+        # --- Step 4: Instantiation and Simulation Loop ---
         runner = SimulationRunner(
             adata=self.adata,
             spatial_env=self.spatial_env,
@@ -207,7 +223,7 @@ class SpatialBooleanPipeline:
 
     ## ----- Sanity check: configuration -----
 
-    def CheckConfiguration(self) -> None:
+    def CheckConfiguration(self, show_all_examples: bool = False) -> None:
         """
         Runs a pre-execution audit on the loaded data and model specifications.
 
@@ -221,5 +237,6 @@ class SpatialBooleanPipeline:
             liana_key=self.liana_key,
             manager=self.maboss_manager,
             spatial_env=self.spatial_env,
-            time_estimator=self.time_estimator
+            time_estimator=self.time_estimator,
+            show_all_examples=show_all_examples
         )

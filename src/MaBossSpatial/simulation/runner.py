@@ -172,7 +172,17 @@ class SimulationRunner:
 
         # 2. Main Time Stepping Loop
         current_time = delta_t
-        connectivities = self.adata.obsp[self.spatial_env.connectivity_key]
+
+        conn_key = self.spatial_env.connectivity_key
+        actual_conn_key = conn_key if conn_key.endswith("_connectivities") else f"{conn_key}_connectivities"
+        
+        if actual_conn_key not in self.adata.obsp:
+            raise KeyError(
+                f"Requested adjacency matrix '{actual_conn_key}' could not be resolved inside adata.obsp. "
+                f"Available keys are: {list(self.adata.obsp.keys())}"
+            )
+
+        connectivities = self.adata.obsp[actual_conn_key]
         cell_names = self.adata.obs_names.tolist()
         cell_to_idx = {cell: i for i, cell in enumerate(cell_names)}
 
