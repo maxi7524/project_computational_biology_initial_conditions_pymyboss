@@ -66,6 +66,34 @@ def stage_physiboss_project(
     patched_xml_tree.write(target_config_dir / staged_xml_name, encoding="utf-8", xml_declaration=True)
     print(f" -> Deployed simulation architecture definition: {staged_xml_name}")
 
+    # File migration phase: External initialization assets
+    ## Copy detected tracking data formats (cells.csv / cell_rules.csv) directly to the target project workspace
+    source_base_dir = xml_path.parent
+    
+    ## Stage spatial layout definitions if activated in configuration
+    initial_conditions = patched_xml_tree.getroot().find(".//initial_conditions/cell_positions")
+    if initial_conditions is not None and initial_conditions.attrib.get("enabled") == "true":
+        file_node = initial_conditions.find("filename")
+        if file_node is not None and file_node.text:
+            base_name = Path(file_node.text.strip()).name
+            src_file = source_base_dir / base_name
+            if src_file.exists():
+                shutil.copy(src_file, target_config_dir / base_name)
+                print(f" -> Staged external initialization asset: {base_name} -> {target_config_dir.relative_to(physiboss_root)}")
+
+    ## Stage custom behavioral rulesets if activated in configuration
+    cell_rules = patched_xml_tree.getroot().find(".//cell_rules/rulesets")
+    if cell_rules is not None:
+        for ruleset in cell_rules.findall("ruleset"):
+            if ruleset.attrib.get("enabled") == "true":
+                file_node = ruleset.find("filename")
+                if file_node is not None and file_node.text:
+                    base_name = Path(file_node.text.strip()).name
+                    src_file = source_base_dir / base_name
+                    if src_file.exists():
+                        shutil.copy(src_file, target_config_dir / base_name)
+                        print(f" -> Staged external behavior asset: {base_name} -> {target_config_dir.relative_to(physiboss_root)}")
+
     ## Stage boolean asset dependencies into the active runtime workspace
     for prefix, paths in maboss_models_map.items():
         ### Construct destination file boundaries matching expected structural inputs
@@ -170,9 +198,9 @@ def _verify_xml_dependencies(xml_path: Path, maboss_models_map: Dict[str, Dict[s
             
             ### CRITICAL ERROR: XML tags missing entirely inside the intracellular definition
             if bnd_node is None or bnd_node.text is None:
-                raise ValueError(f"Validation Error: Cell '{cell_name}' has a MaBoSS intracellular block but is missing the <bnd_filename> tag.")[cite: 1]
+                raise ValueError(f"Validation Error: Cell '{cell_name}' has a MaBoSS intracellular block but is missing the <bnd_filename> tag.")
             if cfg_node is None or cfg_node.text is None:
-                raise ValueError(f"Validation Error: Cell '{cell_name}' has a MaBoSS intracellular block but is missing the <cfg_filename> tag.")[cite: 1]
+                raise ValueError(f"Validation Error: Cell '{cell_name}' has a MaBoSS intracellular block but is missing the <cfg_filename> tag.")
             
             ### Isolate exact filenames from the XML text contents
             bnd_filename = Path(bnd_node.text.strip()).name
@@ -216,32 +244,49 @@ def _verify_xml_dependencies(xml_path: Path, maboss_models_map: Dict[str, Dict[s
         raise ValueError(f"Validation Error: The configuration file {xml_path} contains no cell definitions with an intracellular MaBoSS engine.")
 
     # Validate external cellular initialization files
-    ## Scan user parameters for external runtime spatial matrices
-    user_parameters = root.find(".//user_parameters")
-    if user_parameters is not None:
-        ### Check every string parameter for cell position or rule descriptors
-        for param in user_parameters.findall("string"):
-            param_text = param.text.strip() if param.text else ""
-            param_name = param.tag
-            
-            if "cells.csv" in param_text or "cell_rules.tsv" in param_text:
-                #### Determine file path relative to the location of the source XML file
-                ##### This assumes the cells.csv/cell_rules.tsv are co-located or path-relative to your source configuration directory
-                source_base_dir = xml_path.parent
-                resolved_file_path = (source_base_dir / param_text).resolve()
-                
-                #### Alternate fallback check directly against the filename if an absolute or broken relative path was input
-                if not resolved_file_path.exists():
-                    resolved_file_path = (source_base_dir / Path(param_text).name).resolve()
+    ## Scan structural spatial containers for custom initialization matrices
+    initial_conditions = root.find(".//initial_conditions/cell_positions")
+    if initial_conditions is not None and initial_conditions.attrib.get("enabled") == "true":
+        ### Extract target nodes from the condition block
+        folder_node = initial_conditions.find("folder")
+        file_node = initial_conditions.find("filename")
+        
+        if folder_node is not None and file_node is not None:
+            #### Isolate filename from paths and verify physical existence on disk
+            base_filename = Path(file_node.text.strip()).name
+            source_base_dir = xml_path.parent
+            resolved_file_path = source_base_dir / base_filename
 
-                #### CRITICAL ERROR: Initial cell positions or rules file cannot be tracked down on disk
-                if not resolved_file_path.exists():
-                    raise FileNotFoundError(
-                        f"Validation Error: User parameter '{param_name}' references file '{param_text}', "
-                        f"but it cannot be found at source location: {resolved_file_path}"
-                    )
+            if not resolved_file_path.exists():
+                ##### Abort pipeline sequence if initialization positions are missing
+                raise FileNotFoundError(
+                    f"Validation Error: <initial_conditions> requires '{base_filename}', "
+                    f"but it does not exist in your source directory: {source_base_dir}"
+                )
+            print(f" -> External cell tracking file verified locally: '{base_filename}'")
+
+    ## Scan structural rule containers for custom behavioral rulesets
+    cell_rules = root.find(".//cell_rules/rulesets")
+    if cell_rules is not None:
+        ### Iterate over individual rule definitions mapped in the XML layout
+        for ruleset in cell_rules.findall("ruleset"):
+            if ruleset.attrib.get("enabled") == "true":
+                folder_node = ruleset.find("folder")
+                file_node = ruleset.find("filename")
                 
-                print(f" -> External cell tracking file verified: '{resolved_file_path.name}'")
+                if folder_node is not None and file_node is not None:
+                    #### Isolate filename descriptor matching csv/tsv frameworks
+                    base_filename = Path(file_node.text.strip()).name
+                    source_base_dir = xml_path.parent
+                    resolved_file_path = source_base_dir / base_filename
+
+                    if not resolved_file_path.exists():
+                        ##### Abort pipeline sequence if behavior files are missing
+                        raise FileNotFoundError(
+                            f"Validation Error: <ruleset> requires '{base_filename}', "
+                            f"but it does not exist in your source directory: {source_base_dir}"
+                        )
+                    print(f" -> External cell behavioral ruleset verified locally: '{base_filename}'")
 
 
 # XML path adaptation layer
@@ -285,19 +330,27 @@ def _patch_xml_dependencies(
                 bnd_node.text = f"./{runtime_maboss_dir_name}/{bnd_filename}"
                 cfg_node.text = f"./{runtime_maboss_dir_name}/{cfg_filename}"
 
-    # Update spatial initialization dependencies
-    ## Locate explicit external configuration elements for cell loading or rulesets
-    user_parameters = root.find(".//user_parameters")
-    if user_parameters is not None:
-        ### Scan text variables for hardcoded initialization files
-        for param in user_parameters.findall("string"):
-            param_text = param.text.strip() if param.text else ""
-            
-            ### Match tracking substrings for rule and placement configurations
-            if "cells.csv" in param_text or "cell_rules.tsv" in param_text:
-                #### Isolate base filename token to remap target workspace directory
-                base_filename = Path(param_text).name
-                param.text = f"./{runtime_maboss_dir_name}/{base_filename}"
-                print(f" -> Patched user parameter file path: {base_filename} -> {param.text}")
+
+    # Update spatial initialization path dependencies
+    ## Remap folder pointers for explicit cell positioning frameworks
+    initial_conditions = root.find(".//initial_conditions/cell_positions")
+    if initial_conditions is not None and initial_conditions.attrib.get("enabled") == "true":
+        folder_node = initial_conditions.find("folder")
+        if folder_node is not None:
+            ### Enforce global execution root relativity targeting the isolated project workspace
+            folder_node.text = f"./{runtime_maboss_dir_name}"
+            print(f" -> Patched cell_positions runtime folder to: {folder_node.text}")
+
+    ## Remap folder pointers for explicit behavioral cellular rulesets
+    cell_rules = root.find(".//cell_rules/rulesets")
+    if cell_rules is not None:
+        ### Process every enabled ruleset sub-node layout configuration
+        for ruleset in cell_rules.findall("ruleset"):
+            if ruleset.attrib.get("enabled") == "true":
+                folder_node = ruleset.find("folder")
+                if folder_node is not None:
+                    #### Overwrite hardcoded structural directories with the managed runtime destination
+                    folder_node.text = f"./{runtime_maboss_dir_name}"
+                    print(f" -> Patched ruleset runtime folder to: {folder_node.text}")
 
     return tree
