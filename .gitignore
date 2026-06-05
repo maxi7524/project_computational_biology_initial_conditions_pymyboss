@@ -3,6 +3,16 @@ data
 .env
 .ipynb_checkpoints/
 
-# library
-__pychache__
+# ???
 .DS_Store
+
+# Python/Packaging artifacts
+*.egg-info/
+*.egg
+dist/
+build/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+env/

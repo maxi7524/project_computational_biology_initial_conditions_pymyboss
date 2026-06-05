@@ -15,14 +15,13 @@
 To initialize the environment and verify the installation follow these steps.
 
 ### 1. Environment Provisioning via Micromamba
-Execute the following commands from the root directory of the repository to build the dedicated computational environment:
 
 ```bash
 # Create the environment
 micromamba create -f workflow/envs/environment.yaml
 
 # Activate the environment
-micromamba activate OmniPhysiBoss_environment
+micromamba activate OmniPhysiBoss_env
 ```
 
 ### 2. Verification of Python Package Installation
@@ -33,12 +32,21 @@ Verify that the `OmniPhysiBoss` source package has been correctly resolved and l
 python -c "import OmniPhysiBoss; print('OmniPhysiBoss successfully resolved at:', OmniPhysiBoss.__file__)"
 ```
 
+If you obtain error, you nee to install it manually by resolving bugs:
+
+```bash
+pip install -e .
+```
+
 ### 3. Check Computational Backends and Compiled Core Dependencies
 
 Since downstream integration relies on direct interaction with `MaBoSS` and multi-scale execution engines, verify that package managers can resolve the core functional libraries:
 
 ```bash
-python -c "import maboss; print('MaBoSS Python API binding operational. Version:', maboss.__version__)"
+# MaBoSS
+python -c "import maboss; print('MaBoSS import successful.'); print('Location:', maboss.__file__)"
+# decoupleR
+python -c "import decoupler; print('Decoupler version:', decoupler.__version__)"
 ```
 
 *Note: If automated package installation fails to resolve native C++ compilation routines or internal library flags for structural simulation tools (`MaBoSS` binary dependencies or `PhysiCell` execution environments), custom compilation blocks must be executed via the local installation scripts.*

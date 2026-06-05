@@ -1,4 +1,4 @@
-name: OmniPhysiBoss_environment
+name: OmniPhysiBoss_env
 channels:
   - conda-forge
   - bioconda
@@ -6,8 +6,8 @@ channels:
 dependencies:
   - python=3.12
   - micromamba
-  - snakemake>=8.0
   - pip
+  - snakemake>=8.0
   - gxx_linux-64  # Required for potential PhysiCell C++ compilation steps
   - cmake
   - git
