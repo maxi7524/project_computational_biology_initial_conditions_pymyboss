@@ -11,6 +11,5 @@ dependencies:
   - gxx_linux-64       # Required for potential PhysiCell C++ compilation steps
   - cmake
   - git
-  - maboss>=2.5.0      # MaBoSS binary
   - pip:
     - -e .             # Installs the local OmniPhysiBoss package in developer mode

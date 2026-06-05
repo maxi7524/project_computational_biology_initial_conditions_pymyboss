@@ -21,6 +21,7 @@ dependencies = [
     "liana>=1.0.0",
     "decoupler>=1.6.0",
     "omnipath>=1.0.6",
+    # actually redundant 
     "maboss>=0.8.4",
     "pymaboss",
     "pcdl"

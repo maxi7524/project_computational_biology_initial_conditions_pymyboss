@@ -1,5 +1,6 @@
 # local files
 data
+logs
 .env
 .ipynb_checkpoints/
 
