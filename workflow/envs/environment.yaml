@@ -8,8 +8,9 @@ dependencies:
   - micromamba
   - pip
   - snakemake>=8.0
-  - gxx_linux-64  # Required for potential PhysiCell C++ compilation steps
+  - gxx_linux-64       # Required for potential PhysiCell C++ compilation steps
   - cmake
   - git
+  - maboss>=2.5.0      # MaBoSS binary
   - pip:
-    - -e .        # Installs the local OmniPhysiBoss package in developer mode
+    - -e .             # Installs the local OmniPhysiBoss package in developer mode

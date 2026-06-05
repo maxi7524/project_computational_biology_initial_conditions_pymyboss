@@ -66,15 +66,20 @@ OmniPhysiBoss/
 │       ├── io/                 # Data input/output processing
 │       │   ├── __init__.py
 │       │   └── anndata_io.py   # AnnData parsing and matrix extraction
-│       ├── network/            # Graph integration and footprint inference
+│       ├── omics/             # Graph integration and footprint inference (tutaj będziemy pozyskiwać informacje z mdata 1.)
 │       │   ├── __init__.py
 │       │   ├── signaling.py    # OmniPath and Liana+ interfaces
 │       │   ├── activity.py     # decoupleR transcription factor activity
-│       │   └── logic.py        # Boolean rule generation (.bnd configuration)
-│       ├── personalization/    # Kinetic parameterization
+│       │   └── logic.py        # Boolean rule generation (for .bnd configuration)
+│       ├── personalization/    # Kinetic parameterization (tutaj będziemy dobierać paramtery )
 │       │   ├── __init__.py
 │       │   ├── profile.py      # PROFILE calculation for k_up and k_down
 │       │   └── steady_state.py # Master equation solver for t_max tracking
+│       ├── configure/          # Graph integration and footprint inference (tutaj będziemy po)
+│       │   ├── __init__.py
+│       │   ├── maboss_initializer.py    # tutaj będzie klasa do tworzenia obiektów maboss (cfg . bnd)
+│       │   ├── agent_initializer.py     # tutaj będzie klasa do tworzenia obiektów physicell (xml with cell rules and cells)
+│       │   └── ???.py        # jakieś helpery ewentualnie do etgo 
 │       ├── wrapper/            # Multi-scale orchestrator
 │       │   ├── __init__.py
 │       │   └── configurator.py # Structural export of XML and MaBoSS entrypoints
