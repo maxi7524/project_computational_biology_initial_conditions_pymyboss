@@ -83,6 +83,15 @@ OmniPhysiBoss/
 │       ├── wrapper/            # Multi-scale orchestrator
 │       │   ├── __init__.py
 │       │   └── configurator.py # Structural export of XML and MaBoSS entrypoints
+│       ├── wrappers/                           # Multi-scale orchestration layer
+│       │   ├── __init__.py
+│       │   ├── configure_PhysiBoSS.py          # Project staging and configuration entrypoint
+│       │   ├── run_PhysiBoSS.py                # Simulation execution engine and log monitor
+│       │   └── _utils/                         # Private validation and routing utilities
+│       │       ├── __init__.py
+│       │       ├── pathfinder.py               # Model discovery and output data migration tools
+│       │       ├── verify_xml.py               # Modular structural checking validation routines
+│       │       └── patch_xml.py                # Modular in-memory structural mutation routines
 │       └── visualization/      # Post-simulation analytics
 │           ├── __init__.py
 │           └── plots.py        # Probability distributions and JS-divergence plots
