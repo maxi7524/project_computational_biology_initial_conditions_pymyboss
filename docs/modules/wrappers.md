@@ -1,7 +1,7 @@
 
 # Wrappers Module: Multi-Scale Simulation Orchestrator
 
-The `wrappers` module serves as the functional bridge between high-level Python pipeline operations and the low-level, compiled C++ multi-scale engine (`PhysiBoSS`). It decouples cellular personalization configuration from physical system execution by exposing a clean, two-step workflow: Staging/Validation and Execution/Monitoring.
+The `wrappers` module serves as the functional bridge between high-level Python pipeline operations and the low-level, compiled C++ multi-scale engine (`PhysiBoSS`). It decouples cellular personalization configuration from physical system execution by exposing a clean, two-step workflow: Staging/Validation and Execution/Monitoring. What is important here, we need to clone their repository from [github](https://github.com/PhysiBoSS/PhysiBoSS), as they do not provide official package as well as wrappers. Comprehensive instruction how to install everything is here (#TODO - odnośnik do dokumentacji z instalacja) 
 
 ---
 

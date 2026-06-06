@@ -46,6 +46,9 @@ def patch_xml_dependencies(
     ## Update execution transition rulesets
     _patch_cell_rules(root, runtime_maboss_dir_name)
 
+    ## Isolate simulation results output directories per project target
+    _patch_output_folder(root, project_name=xml_path.stem)
+
     return tree
 
 # ----------------------------------
@@ -127,3 +130,25 @@ def _patch_cell_rules(root: ET.Element, runtime_maboss_dir_name: Path) -> None:
                     print(f" -> Patched ruleset runtime folder to: {folder_node.text}")
 
 
+## Atomic helper to isolate project-specific simulation output paths
+def _patch_output_folder(root: ET.Element, project_name: str) -> None:
+    """
+    Mutates the save folder configuration text node to isolate project simulation outputs.
+
+    :param root: Root element of the parsed XML tree layout.
+    :type root: ET.Element
+    :param project_name: Core name stem of the active project layout configuration.
+    :type project_name: str
+    """
+    # Locate filesystem storage saving configuration boundaries
+    ## Inspect save layout node blocks
+    save_node = root.find(".//save")
+    if save_node is not None:
+        folder_node = save_node.find("folder")
+        if folder_node is not None and folder_node.text:
+            ### Isolate original output directory prefix token
+            base_output_dir = folder_node.text.strip()
+            
+            ### Enforce structured isolated sub-directory execution route
+            folder_node.text = f"./{base_output_dir}/{project_name}"
+            print(f" -> Patched data tracking output folder to: {folder_node.text}")

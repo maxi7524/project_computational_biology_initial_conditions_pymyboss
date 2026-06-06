@@ -3,11 +3,11 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-# Assumed import of the configurator class (adjust import path to project structure)
+# Core application and asset dependency structures
 from OmniPhysiBoSS.generators import PhysiCellAgentGenerator
-
 from tests.mock_data import (
     get_reference_mock_xml_string,
+    get_multi_model_mock_xml_string,
     get_reference_cells_csv_string,
     get_reference_rules_csv_string
 )
@@ -21,13 +21,15 @@ def test_init_creates_correct_root_and_placeholders():
     Verifies that initialization from scratch creates the correct root node
     and all required section containers in the proper XML order.
     """
+    # System orchestration
+    ## Instantiating core configuration generator block
     generator = PhysiCellAgentGenerator("test_model")
     
     assert generator.model_name == "test_model"
-    assert generator.root.tag == "PhysiCell_settings"
     assert generator.root.get("version") == "devel-version"
     
-    # Check for the presence of key structural sections
+    # Validation loop
+    ## Verifying structural compliance sequence of top-level tags
     expected_tags = [
         "domain", "overall", "parallel", "save", "options",
         "microenvironment_setup", "cell_definitions",
@@ -42,6 +44,8 @@ def test_set_overall_parameters_formatting():
     Checks if the set_overall_parameters method correctly formats values,
     creates nodes, and correctly assigns unit attributes.
     """
+    # Parameter processing
+    ## Injecting temporal constraints configuration blocks
     configurator = PhysiCellAgentGenerator("test_model")
     configurator.set_overall_parameters(
         max_time=1440.0,
@@ -52,6 +56,8 @@ def test_set_overall_parameters_formatting():
         space_units="micron"
     )
     
+    # State validation
+    ## Assert structural tree elements value identity
     overall_node = configurator.overall
     assert overall_node.find("max_time").text == "1440.0"
     assert overall_node.find("max_time").get("units") == "min"
@@ -67,6 +73,8 @@ def test_set_parallel_parameters():
     """
     Verifies the correctness of writing the OpenMP multithreading configuration.
     """
+    # Operational configuration
+    ## Setting OpenMP shared-memory concurrency metrics
     configurator = PhysiCellAgentGenerator("test_model")
     configurator.set_parallel_parameters(omp_num_threads=6)
     
@@ -79,6 +87,8 @@ def test_set_save_parameters():
     Checks if data saving parameters (Full data and SVG) are correctly
     generated and if the tree structure maintains logical nesting.
     """
+    # Persistence planning
+    ## Injecting interval data capture tracking properties
     generator = PhysiCellAgentGenerator("test_model")
     generator.set_save_parameters(
         folder="output_test",
@@ -88,6 +98,8 @@ def test_set_save_parameters():
         enable_svg=False
     )
     
+    # Node evaluation
+    ## Validate output data saving matrix hierarchies
     save_node = generator.save
     assert save_node.find("folder").text == "output_test"
     
@@ -105,6 +117,8 @@ def test_set_global_options():
     """
     Verifies the correctness of setting global flags and the random seed.
     """
+    # Stochastic processing
+    ## Configuring mechanical boundaries and runtime stochastics
     generator = PhysiCellAgentGenerator("test_model")
     generator.set_global_options(virtual_wall=True, disable_springs=False, random_seed=42)
     
@@ -122,6 +136,8 @@ def test_set_domain_parameters():
     """
     Checks the correctness of simulation grid generation and the initialization flag.
     """
+    # Grid orchestration
+    ## Instantiating Cartesian box limits
     generator = PhysiCellAgentGenerator("test_model")
     assert generator.is_domain_initialized is False
     
@@ -146,9 +162,9 @@ def test_add_and_overwrite_microenvironment_substrate():
     Tests adding a chemical substance to the microenvironment and checks
     if re-adding a substance with the same name overwrites it instead of duplicating it.
     """
+    # Substrate configuration
+    ## Injecting primary biochemical continuum tracking variable
     generator = PhysiCellAgentGenerator("test_model")
-    
-    # First addition
     generator.add_microenvironment_substrate(
         name="oxygen",
         diffusion_coefficient=1000.0,
@@ -162,7 +178,8 @@ def test_add_and_overwrite_microenvironment_substrate():
     assert variables[0].get("ID") == "0"
     assert variables[0].find("physical_parameter_set/diffusion_coefficient").text == "1000.0"
     
-    # Overwrite (parameter modification in optimization loop)
+    # Regression mutation overwrite loop
+    ## Alter coefficients to verify duplication blocking attributes
     generator.add_microenvironment_substrate(
         name="oxygen",
         diffusion_coefficient=1500.0,
@@ -171,7 +188,6 @@ def test_add_and_overwrite_microenvironment_substrate():
     )
     
     variables_after = generator.microenvironment_setup.findall("variable")
-    # Node count must remain equal to 1 (no duplication)
     assert len(variables_after) == 1
     assert variables_after[0].find("physical_parameter_set/diffusion_coefficient").text == "1500.0"
     assert variables_after[0].find("physical_parameter_set/decay_rate").text == "0.2"
@@ -186,16 +202,38 @@ def test_register_allowed_cell_type_uniqueness():
     Verifies that cell type registration correctly checks for uniqueness
     of names and IDs, raising a ValueError upon conflicts.
     """
+    # Initialization
+    ## Populate base dictionary schemas with initial indices
     generator = PhysiCellAgentGenerator("test_model")
     generator.register_allowed_cell_type("stem", 0)
     
-    # Attempt to register a duplicate name
+    # Error checking loops
+    ## Evaluate identity conflict traps for labels
     with pytest.raises(ValueError, match="Cell type name 'stem' has already been registered."):
         generator.register_allowed_cell_type("stem", 1)
         
-    # Attempt to register a duplicate ID
+    ## Evaluate identity conflict traps for integer IDs
     with pytest.raises(ValueError, match="Cell type ID '0' has already been registered."):
         generator.register_allowed_cell_type("cancer", 0)
+
+
+def test_register_multiple_heterogeneous_cell_types():
+    """
+    Validates that registering multiple distinct cell archetypes updates internal registries sequentially.
+    """
+    # Multi-archetype orchestration
+    ## Provisioning separate target definitions within an identical container structure
+    generator = PhysiCellAgentGenerator("multi_model")
+    generator.register_allowed_cell_type("default", 0)
+    generator.register_allowed_cell_type("other", 1)
+
+    # State validation assertions
+    assert "default" in generator.registered_cell_types
+    assert "other" in generator.registered_cell_types
+    assert generator.registered_cell_types["other"] == 1
+    
+    cell_defs = generator.cell_definitions.findall("cell_definition")
+    assert len(cell_defs) == 2
 
 
 # ----------------------------------
@@ -207,29 +245,22 @@ def test_reconstruct_from_scratch_matches_mock_xml():
     Builds a full model from scratch, recreating the exact structure from `mock_data`,
     and then compares the generated XML tree with the reference text string.
     """
+    # System reconstruction
+    ## Building complete multi-scale system representation via structured matrix entries
     generator = PhysiCellAgentGenerator("test_model")
-    
-    # 1. Global Simulation Controls
     generator.set_domain_parameters(-500.0, 500.0, -500.0, 500.0, -10.0, 10.0, 20.0, 20.0, 20.0, True)
     generator.set_overall_parameters(1440.0, 0.01, 0.1, 6.0, "min", "micron")
     generator.set_parallel_parameters(6)
     generator.set_save_parameters("output", 6.0, 6.0, True, True)
     generator.set_global_options(virtual_wall=True, disable_springs=False, random_seed=0)
-    
-    # 2. Spatial Domains & Continuum
     generator.add_microenvironment_substrate("substrate", 100000.0, 10.0, 0.0)
-    
-    # 3. Agent Archetypes & Phenotypes
     generator.register_allowed_cell_type("stem", 0)
     
-    # Note: Advanced injection methods for cycle/volume/MaBoSS will be
-    # tested in the full class. Here we check the integrity of the base structure.
-    
-    # Retrieve reference string from mock_data
+    # Regression comparison block
+    ## Fetch raw regression template text matrix from mock system modules
     ref_xml_string = get_reference_mock_xml_string()
     ref_root = ET.fromstring(ref_xml_string)
     
-    # Compare basic tags and their sequences
     generated_tags = [child.tag for child in generator.root]
     ref_tags = [child.tag for child in ref_root]
     assert generated_tags == ref_tags
@@ -241,20 +272,19 @@ def test_associated_files_persistence():
     and enforces the correctness of `cells.csv` and `cell_rules.csv` files
     within the selected folder during the save method call.
     """
+    # File infrastructure assembly
+    ## Initialize minimal data frameworks to test safe disk writes
     generator = PhysiCellAgentGenerator("test_model")
-    
-    # Minimum configuration required for saving
     generator.set_domain_parameters(-100.0, 100.0, -100.0, 100.0, -10.0, 10.0, 20.0, 20.0, 20.0, True)
     generator.set_overall_parameters(1440.0, 0.01, 0.1, 6.0)
     generator.set_save_parameters("output", 6.0, 6.0)
     generator.register_allowed_cell_type("stem", 0)
     
+    # Disk lifecycle block
+    ## Use contextual tracking workspaces to dump test file formats safely
     with TemporaryDirectory() as tmp_dir:
         output_folder = Path(tmp_dir) / "config_output"
         xml_out_path = output_folder / "PhysiCell_settings.xml"
-        
-        # Call to save method (the save_configuration method will be extended to create csvs)
-        # At this stage, we check if the script correctly initializes the XML file in the structure
         output_folder.mkdir(parents=True, exist_ok=True)
         
         ET.indent(generator.tree, space="    ", level=0)

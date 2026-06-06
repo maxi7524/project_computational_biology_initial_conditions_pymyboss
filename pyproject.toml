@@ -37,3 +37,7 @@ dev = [
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.pytest.ini_options]
+# Wyklucza folder 'external' z przeszukiwania przez pytest
+norecursedirs = ["external", ".*", "build", "dist", "CVS", "_darcs", "{arch}", "*.egg"]
