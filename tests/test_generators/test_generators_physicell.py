@@ -4,7 +4,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 
 # Core application and asset dependency structures
-from OmniPhysiBoSS.generators import PhysiCellAgentGenerator
+from OmniPhysiBoSS.configurators import PhysiCellAgentConfigurator
 from tests.mock_data import (
     get_reference_mock_xml_string,
     get_multi_model_mock_xml_string,
@@ -23,7 +23,7 @@ def test_init_creates_correct_root_and_placeholders():
     """
     # System orchestration
     ## Instantiating core configuration generator block
-    generator = PhysiCellAgentGenerator("test_model")
+    generator = PhysiCellAgentConfigurator("test_model")
     
     assert generator.model_name == "test_model"
     assert generator.root.get("version") == "devel-version"
@@ -46,7 +46,7 @@ def test_set_overall_parameters_formatting():
     """
     # Parameter processing
     ## Injecting temporal constraints configuration blocks
-    configurator = PhysiCellAgentGenerator("test_model")
+    configurator = PhysiCellAgentConfigurator("test_model")
     configurator.set_overall_parameters(
         max_time=1440.0,
         dt_diffusion=0.01,
@@ -75,7 +75,7 @@ def test_set_parallel_parameters():
     """
     # Operational configuration
     ## Setting OpenMP shared-memory concurrency metrics
-    configurator = PhysiCellAgentGenerator("test_model")
+    configurator = PhysiCellAgentConfigurator("test_model")
     configurator.set_parallel_parameters(omp_num_threads=6)
     
     parallel_node = configurator.parallel
@@ -89,7 +89,7 @@ def test_set_save_parameters():
     """
     # Persistence planning
     ## Injecting interval data capture tracking properties
-    generator = PhysiCellAgentGenerator("test_model")
+    generator = PhysiCellAgentConfigurator("test_model")
     generator.set_save_parameters(
         folder="output_test",
         full_data_interval=6.0,
@@ -119,7 +119,7 @@ def test_set_global_options():
     """
     # Stochastic processing
     ## Configuring mechanical boundaries and runtime stochastics
-    generator = PhysiCellAgentGenerator("test_model")
+    generator = PhysiCellAgentConfigurator("test_model")
     generator.set_global_options(virtual_wall=True, disable_springs=False, random_seed=42)
     
     options_node = generator.options
@@ -138,7 +138,7 @@ def test_set_domain_parameters():
     """
     # Grid orchestration
     ## Instantiating Cartesian box limits
-    generator = PhysiCellAgentGenerator("test_model")
+    generator = PhysiCellAgentConfigurator("test_model")
     assert generator.is_domain_initialized is False
     
     generator.set_domain_parameters(
@@ -164,7 +164,7 @@ def test_add_and_overwrite_microenvironment_substrate():
     """
     # Substrate configuration
     ## Injecting primary biochemical continuum tracking variable
-    generator = PhysiCellAgentGenerator("test_model")
+    generator = PhysiCellAgentConfigurator("test_model")
     generator.add_microenvironment_substrate(
         name="oxygen",
         diffusion_coefficient=1000.0,
@@ -204,7 +204,7 @@ def test_register_allowed_cell_type_uniqueness():
     """
     # Initialization
     ## Populate base dictionary schemas with initial indices
-    generator = PhysiCellAgentGenerator("test_model")
+    generator = PhysiCellAgentConfigurator("test_model")
     generator.register_allowed_cell_type("stem", 0)
     
     # Error checking loops
@@ -223,7 +223,7 @@ def test_register_multiple_heterogeneous_cell_types():
     """
     # Multi-archetype orchestration
     ## Provisioning separate target definitions within an identical container structure
-    generator = PhysiCellAgentGenerator("multi_model")
+    generator = PhysiCellAgentConfigurator("multi_model")
     generator.register_allowed_cell_type("default", 0)
     generator.register_allowed_cell_type("other", 1)
 
@@ -247,7 +247,7 @@ def test_reconstruct_from_scratch_matches_mock_xml():
     """
     # System reconstruction
     ## Building complete multi-scale system representation via structured matrix entries
-    generator = PhysiCellAgentGenerator("test_model")
+    generator = PhysiCellAgentConfigurator("test_model")
     generator.set_domain_parameters(-500.0, 500.0, -500.0, 500.0, -10.0, 10.0, 20.0, 20.0, 20.0, True)
     generator.set_overall_parameters(1440.0, 0.01, 0.1, 6.0, "min", "micron")
     generator.set_parallel_parameters(6)
@@ -274,7 +274,7 @@ def test_associated_files_persistence():
     """
     # File infrastructure assembly
     ## Initialize minimal data frameworks to test safe disk writes
-    generator = PhysiCellAgentGenerator("test_model")
+    generator = PhysiCellAgentConfigurator("test_model")
     generator.set_domain_parameters(-100.0, 100.0, -100.0, 100.0, -10.0, 10.0, 20.0, 20.0, 20.0, True)
     generator.set_overall_parameters(1440.0, 0.01, 0.1, 6.0)
     generator.set_save_parameters("output", 6.0, 6.0)

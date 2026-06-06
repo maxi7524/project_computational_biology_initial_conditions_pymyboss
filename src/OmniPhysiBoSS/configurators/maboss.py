@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import Dict, Union, Any
 
-class MaBoSSModelGenerator:
+class MaBoSSModelConfigurator:
     """
     Configures validated MaBoSS network topology (.bnd) and configuration (.cfg)
     files based on signaling pathway definitions with strict syntactic checks.

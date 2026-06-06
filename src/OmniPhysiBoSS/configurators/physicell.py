@@ -2,7 +2,7 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 from typing import Union, Dict, Set, List
 
-class PhysiCellAgentGenerator:
+class PhysiCellAgentConfigurator:
     """
     Builds a complete PhysiCell and PhysiBoSS XML configuration file from scratch
     and manages associated environment initialization and validation rules.

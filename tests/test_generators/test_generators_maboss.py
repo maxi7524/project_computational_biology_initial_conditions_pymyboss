@@ -3,7 +3,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 
 # Core application and asset dependency structures
-from OmniPhysiBoSS.generators import MaBoSSModelGenerator
+from OmniPhysiBoSS.configurators import MaBoSSModelConfigurator
 from tests.mock_data import (
     get_maboss_bnd_mock_string, 
     get_maboss_cfg_mock_string,
@@ -21,7 +21,7 @@ def test_validate_and_translate_logic_operators():
     """
     # Logic expression processing
     ## Parsing Boolean character strings to verify operator translations
-    generator = MaBoSSModelGenerator("signaling_core")
+    generator = MaBoSSModelConfigurator("signaling_core")
     translated = generator._validate_and_translate_logic("A AND NOT B OR C")
     assert translated == "A & ! B | C"
 
@@ -32,7 +32,7 @@ def test_validate_and_translate_logic_invalid_syntax():
     """
     # Malformed syntax testing
     ## Injecting illegal string signatures to verify error handling bounds
-    generator = MaBoSSModelGenerator("signaling_core")
+    generator = MaBoSSModelConfigurator("signaling_core")
     with pytest.raises(ValueError, match="Unsupported characters or operators found in logic expression"):
         generator._validate_and_translate_logic("A system_call_malicious() B")
 
@@ -47,7 +47,7 @@ def test_add_node_validation_bounds():
     """
     # Node definition testing
     ## Validate registration threshold indices across legal boundaries
-    generator = MaBoSSModelGenerator("signaling_core")
+    generator = MaBoSSModelConfigurator("signaling_core")
     generator.add_node("CASP8", "DISC_TNF", istate=0.5)
     assert "CASP8" in generator.nodes
     
@@ -62,7 +62,7 @@ def test_set_engine_parameter_typing():
     """
     # Structural configuration verification
     ## Testing input type boundaries against valid execution parameter options
-    generator = MaBoSSModelGenerator("signaling_core")
+    generator = MaBoSSModelConfigurator("signaling_core")
     generator.set_engine_parameter("sample_count", 80000)
     
     with pytest.raises(TypeError, match="must be of type"):
@@ -75,7 +75,7 @@ def test_set_global_variable_prefix_enforcement():
     """
     # Token formatting evaluation
     ## Testing requirements for standard dollar sign variable prefix markers
-    generator = MaBoSSModelGenerator("signaling_core")
+    generator = MaBoSSModelConfigurator("signaling_core")
     generator.set_global_variable("$TransRate", 0.1)
     
     with pytest.raises(ValueError, match="Global variables in MaBoSS must begin with"):
@@ -92,7 +92,7 @@ def test_write_model_file_persistence():
     """
     # Physical persistence serialization
     ## Registering valid logical parameters for execution tracing
-    generator = MaBoSSModelGenerator("signaling_core")
+    generator = MaBoSSModelConfigurator("signaling_core")
     generator.add_node("CASP8", "DISC_TNF", istate=0.0)
     generator.set_global_variable("$CASP8_del", False)
     generator.set_engine_parameter("max_time", 100)
@@ -116,7 +116,7 @@ def test_maboss_parser_library_loading():
     """
     # Syntax validation checks
     ## Formatting configuration inputs to reflect canonical model parsing structures
-    generator = MaBoSSModelGenerator("signaling_core")
+    generator = MaBoSSModelConfigurator("signaling_core")
     generator.add_node("DISC_TNF", "DISC_TNF", istate=0.0)
     generator.add_node("CASP8", "DISC_TNF", istate=0.0)
     generator.set_engine_parameter("sample_count", 1000)
@@ -143,7 +143,7 @@ def test_generation_of_alternative_immune_activation_model():
     """
     # Alternate model assembly
     ## Initializing independent variables for the immune activation network structure
-    generator = MaBoSSModelGenerator("immune_activation")
+    generator = MaBoSSModelConfigurator("immune_activation")
     generator.add_node("AntigenPresent", "AntigenPresent", istate=1.0)
     generator.add_node("TCR_Binding", "AntigenPresent", istate=0.0)
     generator.set_global_variable("$STAT_inhibited", False)
