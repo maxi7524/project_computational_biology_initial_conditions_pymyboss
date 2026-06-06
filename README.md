@@ -107,10 +107,8 @@ The installation requires **3.1 – 3.7 GB** of disk space and takes approximate
 | **Omics Deps** | 0.8 – 1.1 GB | `scanpy`, `anndata`, `liana`, `decoupler`. |
 | **PhysiBoSS Engine** | ~0.4 GB | Source code & compiled binaries. |
 
+
 ***
-
-
-
 
 ## Contributing
 

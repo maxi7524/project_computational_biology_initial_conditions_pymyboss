@@ -1,5 +1,6 @@
 from pathlib import Path
 from typing import Dict, Union, Any
+import re
 
 class MaBoSSModelConfigurator:
     """
@@ -31,22 +32,43 @@ class MaBoSSModelConfigurator:
     def valid_engine_params(self):
         return self.VALID_ENGINE_PARAMS.copy()
 
+    
+
     def _validate_and_translate_logic(self, logic_expression: str) -> str:
+        """Validate and translate logical expressions into MaBoSS tokens.
+
+        Parameters
+        ----------
+        logic_expression : str
+            The raw string expression containing word-based logical operators.
+
+        Returns
+        -------
+        str
+            The translated string using native MaBoSS boolean operators.
+
+        Raises
+        ------
+        ValueError
+            If the expression is empty, contains only whitespace, or includes 
+            unsupported characters and syntactic operators.
         """
-        Validates the logic expression and translates word operators to MaBoSS tokens.
-        """
-        # Dictionary mapping for allowed words to MaBoSS symbols
-        translation = {
-            " AND ": " & ",
-            " OR ": " | ",
-            "NOT ": " ! "
-        }
-        
+        # Validation boundary check
+        ## Intercept empty inputs or strings containing only whitespace
+        if not logic_expression or not logic_expression.strip():
+            raise ValueError("Unsupported characters or operators found in logic expression: Network or node logic expression is empty.")
+
+        # Expression translation mapping
+        ## Force uppercase translation for standard operators with word boundaries
         translated = logic_expression
-        for word, token in translation.items():
-            translated = translated.replace(word, token)
-            
-        # Strict validation of allowed characters in MaBoSS logic expressions
+        
+        ## Apply regular expressions to enforce strict word boundaries
+        translated = re.sub(r'\bAND\b', '&', translated, flags=re.IGNORECASE)
+        translated = re.sub(r'\bOR\b', '|', translated, flags=re.IGNORECASE)
+        translated = re.sub(r'\bNOT\b', '!', translated, flags=re.IGNORECASE)
+        
+        # Structural check
+        ## Strict validation of allowed characters in MaBoSS logic expressions
         allowed_chars = set("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_()&|!@$? \t\n.:><=+-*/,")
         invalid_chars = set(translated) - allowed_chars
         if invalid_chars:

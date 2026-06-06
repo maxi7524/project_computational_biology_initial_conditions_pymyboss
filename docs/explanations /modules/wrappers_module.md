@@ -33,7 +33,7 @@ wrappers/
 * **`_utils/pathfinder.py`**: Automatically pairs `.bnd` and `.cfg` files with common prefixes and migrates resulting trajectories.
 * **`_utils/verify_xml.py`**: Checks the correctness of intracellular tags, prefix compatibility, and the physical presence of configuration files on the disk.
 * **`_utils/patch_xml.py`**: Overwrites XML text nodes, modifying paths to Boolean files and output folders to maintain isolation.
-* **`_utils/stage_xml.py`**: Performs physical deletion of old development structures and writes the new configuration to disk.
+* **`_utils/stage_xml.py`**: Validates user configurations and stages the verified file matrix inside the operational C++ engine layout.
 * **`_utils/log_monitor.py`**: Captures the low-level output pipeline, discarding repetitive cell position dumps.
 
 ### Execution Pipeline

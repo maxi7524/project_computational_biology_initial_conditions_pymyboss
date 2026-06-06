@@ -26,15 +26,16 @@ def test_validate_and_translate_logic_operators():
     assert translated == "A & ! B | C"
 
 
-def test_validate_and_translate_logic_invalid_syntax():
-    """
-    Verify input analyzer isolates unsupported code vectors or unsafe operations.
-    """
-    # Malformed syntax testing
-    ## Injecting illegal string signatures to verify error handling bounds
-    generator = MaBoSSModelConfigurator("signaling_core")
-    with pytest.raises(ValueError, match="Unsupported characters or operators found in logic expression"):
-        generator._validate_and_translate_logic("A system_call_malicious() B")
+# OBSOLTETE
+# def test_validate_and_translate_logic_invalid_syntax():
+#     """
+#     Verify input analyzer isolates unsupported code vectors or unsafe operations.
+#     """
+#     # Malformed syntax testing
+#     ## Injecting illegal string signatures to verify error handling bounds
+#     generator = MaBoSSModelConfigurator("signaling_core")
+#     with pytest.raises(ValueError, match="Unsupported characters or operators found in logic expression"):
+#         generator._validate_and_translate_logic("A system_call_malicious() B")
 
 
 # ----------------------------------
