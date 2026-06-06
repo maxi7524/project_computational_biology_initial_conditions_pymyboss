@@ -1,6 +1,7 @@
 # local files
 data
 logs
+external
 .env
 .ipynb_checkpoints/
 

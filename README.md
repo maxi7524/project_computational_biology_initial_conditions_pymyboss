@@ -1,149 +1,137 @@
-# OmniPhysiBoss
-#TODO
+
+# OmniPhysiBoSS
+
+***
 
 ## Introduction
 
+#TODO - poprawić sekcje 
+
+### Short description
+
+#TODO POPRAWIĆ 
+
+OmniPhysiBoSS is library which creates `PhysiBoSS` models based on given configuration. It allows to create models for `PhysiBoSS` from scratch in by using python code. Repository also contains prepared pipeline to for simulating spatial-sc tissue (#TODO - to co przewiduja te modele...) which, were i created of maboss models and intercelluar communication, from scratch based on `Omnitpath` and `decoupleR` references.  
+
+OmniPhysiBoSS is a Python library designed to programmatically generate and configure multi-scale PhysiBoSS models. It enables to construct complex agent-based models from scratch directly via Python code. The repository also includes a streamlined execution pipeline for simulating single-cell tissue dynamics. 
+#TODO - porawić
+This pipeline automates the generation of Boolean intracellular networks (MaBoSS) and intercellular signaling interactions by leveraging state-of-the-art reference data from OmniPath and decoupleR .
+
+### Key insights 
+
+- (#TODO - later) - Integration with `PhysiBoSS` via python code allowing to:
+  - ...
+  -fds
+- basic model for sc-spatial simulations, allowing to examine possible states / outcomes of tissue fragment
+
+- **Pythonic Model Generation:** Native programmatic interaction with the PhysiBoSS C++ core engine, eliminating the need for manual XML configuration.
+- **Multi-Scale Spatial Simulations:** Modeling framework to evaluate tissue-level behaviors, state transitions, and spatial cellular patterns from single-cell transcriptomics data.
+
+
 ### Goal & Motivation
 
-***
+My motivation was create models, which simulates inter-cellular communication on given sc-spatial data. I used already state-of-art model `PhysiBoSS` to simulate environment and figure out part responsible for giving initial conditions, based on several modalities, that is:
+-( #TODO - later tutaj muszę wypisać ponieważ ta część nie jest jeszcze gotowa) 
 
-### Key Features 
+The primary objective of OmniPhysiBoSS is to orchestrate intercellular and intracellular communication networks within highly resolved spatial single-cell datasets . By integrating state-of-the-art agent-based environments (PhysiCell/PhysiBoSS) with functional omics footprints (decoupleR, LIANA+, OmniPath), the framework automates the generation of baseline constraints, initial cellular states, and spatial initial conditions across distinct tissue modalities.
+
+<!-- Tutaj est to lepiej napisne   -->
 
 
-### Future plans
-
-***
-
-## Summary 
-
-###
-
-### Methodology (briefly)
-
-### Implementation details 
 
 ***
 
-## Installation and Environment Verification
+## Table of contents 
 
-To initialize the environment and verify the installation follow these steps.
+#TODO - do it with markdown-toc generator 
 
-### 1. Environment Provisioning via Micromamba
+*** 
+
+<!-- ## Technical Documentation & Methodology Core -->
+## Documentation 
+
+For detailed guidelines, implementation details, and theoretical background, navigate to the respective documentation sections below:
+
+- **[Modules](./docs/explanations%20/modules/README.md)**: Contains a comprehensive technical description of the implemented library modules. It explains the architectural design, internal code construction, and provides explicit instructions on how to modify or extend the codebase.
+- **[I/O Formats](./docs/explanations%20/io_formats/README.md)**: Serves as a developer-focused reference for debugging and system configuration. It specifies exact specifications for input and output data structures, detailing the files involved in the analysis pipeline (including parsing mechanisms, schema definitions, and expected formats).
+- **[Methodology](./docs/explanations%20/methodology/README.md)**: Combines the formal theoretical foundation of the problem with a detailed rationale behind our specific implementation. It explains the mathematical or biological modeling abstractions selected and justifies the algorithmic execution flow.
+
+## Installation & usage
+
+### Tutorials & reproduction
+
+To learn how to use library go to `docs/tutorials/introduction_to_omniphysiboss.md.md`
+
+To reproduce results from `report.pdf` go to  `docs/how_to/base_model-reproduction.md`
+
+***
+
+### comprehensive  explanation of documentation & methodology
+
+<!-- Here is explanations folder brief summary -->
+
+#TODO - napisć żę dokładnie to jest opisane tam i tam 
+
+### Environment setup and activation
+
+To use repository you first need to clone it and instantiate environment as follows:
 
 ```bash
-# Create the environment
-micromamba create -f workflow/envs/environment.yaml
+# create `OmniPhysiBoss_env` environment 
+micromamba create -f workflow/envs/environment.yaml -y
 
-# Activate the environment
-micromamba activate OmniPhysiBoss_env
+# Installs the local OmniPhysiBoss package 
+pip install -e .           
+
+# activation of new environment
+micromamba activate OmniPhysiBoss_env 
+
+# run script that clone OmniPhysiBoSS repository and sets it checked version
+python scripts/utils/install_OmniPhysiBoSS.py
 ```
 
-### 2. Verification of Python Package Installation
+> REMARK - everyone: Do not clone OmniPhysiBoSS separately. If commits would change critical paths (f.e. compilation files) whole script will broke. 
 
-Verify that the `OmniPhysiBoss` source package has been correctly resolved and linked in editable development mode (`-e .` constraint handled by the environment file):
+> REMARK - developer: If you want to change repository i advice you to install addiotnal dependencies:
+> ```bash
+> pip install -e .[docs]
+> ```
+>
 
-```bash
-python -c "import OmniPhysiBoss; print('OmniPhysiBoss successfully resolved at:', OmniPhysiBoss.__file__)"
-```
+### Resource Requirements & Deployment Timeline
+The installation requires **3.1 – 3.7 GB** of disk space and takes approximately **13 – 25 minutes** to complete, depending on your network speed and CPU performance.
 
-If you obtain error, you nee to install it manually by resolving bugs:
+| Component | Est. Size | Description |
+| --- | --- | --- |
+| **Micromamba Env** | 1.8 – 2.2 GB | Python 3.12, Snakemake, C++ toolchains. |
+| **Omics Deps** | 0.8 – 1.1 GB | `scanpy`, `anndata`, `liana`, `decoupler`. |
+| **PhysiBoSS Engine** | ~0.4 GB | Source code & compiled binaries. |
 
-```bash
-pip install -e .
-```
-
-### 3. Check Computational Backends and Compiled Core Dependencies
-
-Since downstream integration relies on direct interaction with `MaBoSS` and multi-scale execution engines, verify that package managers can resolve the core functional libraries:
-
-```bash
-# MaBoSS
-python -c "import maboss; print('MaBoSS import successful.'); print('Location:', maboss.__file__)"
-# decoupleR
-python -c "import decoupler; print('Decoupler version:', decoupler.__version__)"
-```
-
-*Note: If automated package installation fails to resolve native C++ compilation routines or internal library flags for structural simulation tools (`MaBoSS` binary dependencies or `PhysiCell` execution environments), custom compilation blocks must be executed via the local installation scripts.*
+***
 
 
-## Project structure
 
-```Plaintext
-OmniPhysiBoss/
-├── .gitignore
-├── README.md
-├── pyproject.toml              # Central package configuration (PEP 621)
-├── external/                           # Third-party compiled engine installations
-│   └── PhysiBoSS/                      # Shallow clone source repository of the C++ engine
-│       ├── Makefile                    # Low-level build file compiling object frameworks
-│       ├── PhysiBoSS_Cell_Lines        # Compiled multi-scale binary executable file
-│       ├── OmniPhysiBoSS_projects/     # Isolated runtime directories partitioned by workflow
-│       │   └── [project_name]/         # Active configuration target workspace folder
-│       │       ├── cells.csv           # Staged initial agent position sheet
-│       │       ├── cell_rules.csv      # Staged behavior transformation matrix
-│       │       ├── [project_name].xml  # Patched XML execution configuration
-│       │       ├── model_0.bnd         # Transported Boolean network structure
-│       │       └── model_0.cfg         # Transported Boolean probability rules
-│       └── output/                     # Target folder where the C++ engine dumps simulation data
-├── logs/
-│   └── physiboss_simulation/           # Directory capturing simulation run logs
-│       └── [project_name].log          # Telemetry output file captured by the runner stream
-├── src/                        # Library source code
-│   └── OmniPhysiBoss/
-│       ├── __init__.py         # Public API exposure
-│       ├── py.typed            # Type hinting marker (PEP 561)
-│       ├── io/                 # Data input/output processing
-│       │   ├── __init__.py
-│       │   └── anndata_io.py   # AnnData parsing and matrix extraction
-│       ├── omics/             # Graph integration and footprint inference (tutaj będziemy pozyskiwać informacje z mdata 1.)
-│       │   ├── __init__.py
-│       │   ├── signaling.py    # OmniPath and Liana+ interfaces
-│       │   ├── activity.py     # decoupleR transcription factor activity
-│       │   └── logic.pycytacje # Boolean rule generation (for .bnd configuration)
-│       ├── personalization/    # Kinetic parameterization (tutaj będziemy dobierać paramtery )
-│       │   ├── __init__.py
-│       │   ├── profile.py      # PROFILE calculation for k_up and k_down
-│       │   └── steady_state.py # Master equation solver for t_max tracking
-│       ├── configure/          # Graph integration and footprint inference (tutaj będziemy po)
-│       │   ├── __init__.py
-│       │   ├── maboss_initializer.py    # tutaj będzie klasa do tworzenia obiektów maboss (cfg . bnd)
-│       │   ├── agent_initializer.py     # tutaj będzie klasa do tworzenia obiektów physicell (xml with cell rules and cells)
-│       │   └── ???.py        # jakieś helpery ewentualnie do etgo 
-│       ├── wrapper/            # Multi-scale orchestrator
-│       │   ├── __init__.py
-│       │   └── configurator.py # Structural export of XML and MaBoSS entrypoints
-│       └── wrappers/                   # Multi-scale execution orchestration layer
-│           ├── __init__.py             # Public boundary interface exposition
-│           ├── configure_PhysiBoSS.py  # Validation and configuration assembly orchestrator
-│           ├── run_PhysiBoSS.py        # Clean build manager and execution supervisor
-│           └── _utils/                 # Private atomic helper modules
-│               ├── __init__.py
-│               ├── pathfinder.py       # File discovery and output asset migration tools
-│               ├── verify_xml.py       # Modular structural validation routines
-│               ├── patch_xml.py        # Modular in-memory structural path patching routines
-│               └── log_monitor.py      # Real-time C++ stream telemetry parsing filters
-├── workflow/                   # Snakemake orchestrator
-│   ├── Snakefile               # Global Directed Acyclic Graph (DAG) definition
-│   ├── config/
-│   │   └── config.yaml         # Execution parameters, cutoffs, tolerances
-│   ├── envs/
-│   │   └── environment.yaml    # Conda/Micromamba operational environment configuration
-│   ├── rules/                  # Isolated Snakemake rule definitions (.smk)
-│   └── scripts/                # Execution and bridging scripts
-├── notebooks/                  # Exploratory Data Analysis (EDA)
-│   └── eda_validation.ipynb    # Downstream verification notebooks
-tests/
-├── __init__.py
-├── mock_data/                     # <--- Dedytowany podmoduł zasobów mockowych
-│   ├── __init__.py
-│   ├── omics_data.py             # Generowanie obiektów AnnData i macierzy ekspresji
-│   ├── physicell_templates.py    # Pełne struktury XML, CSV i reguły CBHG
-│   └── maboss_templates.py       # Pliki .bnd oraz .cfg modeli Boolean
-├── test_io.py
-├── test_network.py
-├── test_personalization.py
-└── test_wrappers/                 # <--- Nowe odizolowane testy modułu orkiestracji
-    ├── test_configure.py
-    └── test_runner.py
-```
+
+## Contributing
+
+Contributions to OmniPhysiBoSS are welcome. Please read `CONTRIBUTING.md` for detailed instructions regarding our dewatering environment setup, code formatting standards, and testing suites.
+
+### Academic Attributions & Citations
+
+If you use OmniPhysiBoSS in your research, please cite this framework alongside the foundational upstream multi-scale engines :
+
+* **OmniPhysiBoSS (This Framework):** Stróżyk M, et al. (2026). OmniPhysiBoSS: Programmatic Generation and Orchestration of Multi-Scale Spatial Boolean Microenvironment Models.
+* **PhysiBoSS (Multi-Scale Core Engine):** Ponce-de-Leon M, et al. *Bioinformatics*, 2023. DOI: [10.1038/s41540-023-00314-4](https://doi.org/10.1038/s41540-023-00314-4) .
+* **PhysiCell (Spatial Agent-Based Framework):** Ghaffarizadeh A, et al. *PLoS Computational Biology*, 2018. DOI: [10.1371/journal.pcbi.1005991](https://doi.org/10.1371/journal.pcbi.1005991) .
+* **MaBoSS (Continuous-Time Boolean Core):** Stoll G, et al. *Bioinformatics*, 2017. DOI: [10.1093/bioinformatics/btx139](https://doi.org/10.1093/bioinformatics/btx139) .
+* **decoupleR (Footprint Phenotype Inference):** Badia-i-Mompel J, et al. *Bioinformatics Advances*, 2022. DOI: [10.1093/bioinformaticsadvances/vbac016](https://doi.org/10.1093/bioinformaticsadvances/vbac016) .
+* **LIANA+ (Intercellular Communication):** Dimitrov D, et al. *Bioinformatics*, 2022. DOI: [10.1093/bioinformatics/btac286](https://doi.org/10.1093/bioinformatics/btac286) .
+
+***
+
+## Author
+**Max Stróżyk** - University of Warsaw
+
+## License
+This project is licensed under the MIT License - see the `LICENSE` file for details.
 

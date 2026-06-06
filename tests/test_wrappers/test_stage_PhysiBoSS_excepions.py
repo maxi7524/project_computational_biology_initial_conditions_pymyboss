@@ -1,7 +1,7 @@
 import pytest
 import xml.etree.ElementTree as ET
 from pathlib import Path
-from OmniPhysiBoSS.wrappers.configure_PhysiBoSS import stage_physiboss_project
+from OmniPhysiBoSS.wrappers.stage_PhysiBoSS import stage_physiboss_project
 from tests.mock_data import (
     get_reference_mock_xml_string,
     get_multi_model_mock_xml_string

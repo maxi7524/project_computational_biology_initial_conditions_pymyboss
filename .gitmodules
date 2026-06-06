@@ -1,0 +1,3 @@
+[submodule "external/PhysiBoSS"]
+	path = external/PhysiBoSS
+	url = https://github.com/PhysiBoSS/PhysiBoSS
