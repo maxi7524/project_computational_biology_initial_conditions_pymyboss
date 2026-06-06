@@ -3,12 +3,26 @@
 
 ## Introduction
 
+### Goal & Motivation
+
 ***
 
 ### Key Features 
 
 
+### Future plans
 
+***
+
+## Summary 
+
+###
+
+### Methodology (briefly)
+
+### Implementation details 
+
+***
 
 ## Installation and Environment Verification
 
@@ -59,6 +73,21 @@ OmniPhysiBoss/
 ├── .gitignore
 ├── README.md
 ├── pyproject.toml              # Central package configuration (PEP 621)
+├── external/                           # Third-party compiled engine installations
+│   └── PhysiBoSS/                      # Shallow clone source repository of the C++ engine
+│       ├── Makefile                    # Low-level build file compiling object frameworks
+│       ├── PhysiBoSS_Cell_Lines        # Compiled multi-scale binary executable file
+│       ├── OmniPhysiBoSS_projects/     # Isolated runtime directories partitioned by workflow
+│       │   └── [project_name]/         # Active configuration target workspace folder
+│       │       ├── cells.csv           # Staged initial agent position sheet
+│       │       ├── cell_rules.csv      # Staged behavior transformation matrix
+│       │       ├── [project_name].xml  # Patched XML execution configuration
+│       │       ├── model_0.bnd         # Transported Boolean network structure
+│       │       └── model_0.cfg         # Transported Boolean probability rules
+│       └── output/                     # Target folder where the C++ engine dumps simulation data
+├── logs/
+│   └── physiboss_simulation/           # Directory capturing simulation run logs
+│       └── [project_name].log          # Telemetry output file captured by the runner stream
 ├── src/                        # Library source code
 │   └── OmniPhysiBoss/
 │       ├── __init__.py         # Public API exposure
@@ -70,7 +99,7 @@ OmniPhysiBoss/
 │       │   ├── __init__.py
 │       │   ├── signaling.py    # OmniPath and Liana+ interfaces
 │       │   ├── activity.py     # decoupleR transcription factor activity
-│       │   └── logic.py        # Boolean rule generation (for .bnd configuration)
+│       │   └── logic.pycytacje # Boolean rule generation (for .bnd configuration)
 │       ├── personalization/    # Kinetic parameterization (tutaj będziemy dobierać paramtery )
 │       │   ├── __init__.py
 │       │   ├── profile.py      # PROFILE calculation for k_up and k_down
@@ -83,18 +112,16 @@ OmniPhysiBoss/
 │       ├── wrapper/            # Multi-scale orchestrator
 │       │   ├── __init__.py
 │       │   └── configurator.py # Structural export of XML and MaBoSS entrypoints
-│       ├── wrappers/                           # Multi-scale orchestration layer
-│       │   ├── __init__.py
-│       │   ├── configure_PhysiBoSS.py          # Project staging and configuration entrypoint
-│       │   ├── run_PhysiBoSS.py                # Simulation execution engine and log monitor
-│       │   └── _utils/                         # Private validation and routing utilities
-│       │       ├── __init__.py
-│       │       ├── pathfinder.py               # Model discovery and output data migration tools
-│       │       ├── verify_xml.py               # Modular structural checking validation routines
-│       │       └── patch_xml.py                # Modular in-memory structural mutation routines
-│       └── visualization/      # Post-simulation analytics
-│           ├── __init__.py
-│           └── plots.py        # Probability distributions and JS-divergence plots
+│       └── wrappers/                   # Multi-scale execution orchestration layer
+│           ├── __init__.py             # Public boundary interface exposition
+│           ├── configure_PhysiBoSS.py  # Validation and configuration assembly orchestrator
+│           ├── run_PhysiBoSS.py        # Clean build manager and execution supervisor
+│           └── _utils/                 # Private atomic helper modules
+│               ├── __init__.py
+│               ├── pathfinder.py       # File discovery and output asset migration tools
+│               ├── verify_xml.py       # Modular structural validation routines
+│               ├── patch_xml.py        # Modular in-memory structural path patching routines
+│               └── log_monitor.py      # Real-time C++ stream telemetry parsing filters
 ├── workflow/                   # Snakemake orchestrator
 │   ├── Snakefile               # Global Directed Acyclic Graph (DAG) definition
 │   ├── config/
@@ -105,9 +132,18 @@ OmniPhysiBoss/
 │   └── scripts/                # Execution and bridging scripts
 ├── notebooks/                  # Exploratory Data Analysis (EDA)
 │   └── eda_validation.ipynb    # Downstream verification notebooks
-└── tests/                      # Unit and integration validation tests
-    ├── test_io.py
-    ├── test_network.py
-    └── test_personalization.py
+tests/
+├── __init__.py
+├── mock_data/                     # <--- Dedytowany podmoduł zasobów mockowych
+│   ├── __init__.py
+│   ├── omics_data.py             # Generowanie obiektów AnnData i macierzy ekspresji
+│   ├── physicell_templates.py    # Pełne struktury XML, CSV i reguły CBHG
+│   └── maboss_templates.py       # Pliki .bnd oraz .cfg modeli Boolean
+├── test_io.py
+├── test_network.py
+├── test_personalization.py
+└── test_wrappers/                 # <--- Nowe odizolowane testy modułu orkiestracji
+    ├── test_configure.py
+    └── test_runner.py
 ```
 

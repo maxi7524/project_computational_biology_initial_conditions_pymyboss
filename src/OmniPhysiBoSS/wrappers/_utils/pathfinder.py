@@ -1,3 +1,9 @@
+"""
+OmniPhysiBoSS/wrappers/_utils/pathfinder.py
+---
+This utility submodule isolates file system scanning, grouping logic, and simulation data migration functions.
+"""
+
 import os
 import shutil
 from pathlib import Path

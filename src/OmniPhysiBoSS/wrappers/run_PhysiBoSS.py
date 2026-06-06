@@ -1,12 +1,16 @@
-import subprocess
-import sys
-from pathlib import Path
+"""
+src/OmniPhysiBoSS/wrappers/run_PhysiBoSS.py
+---
+
+"""
 
 import subprocess
 import sys
 import os
 from pathlib import Path
 
+# Private utility references
+from OmniPhysiBoSS.wrappers._utils.log_monitor import PhysiBoSSLogMonitor
 # ----------------------------------
 # Main 
 # ----------------------------------
@@ -37,7 +41,7 @@ def run_physiboss_simulation(
     xml_path = Path(xml_path)
     physiboss_root = Path(physiboss_root)
     if logs_output is None:
-        logs_output = Path(__file__).resolve().parent.parent.parent.parent / 'logs/physiboss_simulation' / xml_path.stem
+        logs_output = Path(__file__).resolve().parent.parent.parent.parent / 'logs/physiboss_simulation' / (xml_path.stem + '.log')
     else:
         logs_output = Path(logs_output)
     project_name = xml_path.stem
@@ -66,8 +70,12 @@ def run_physiboss_simulation(
     os.makedirs(logs_output.parent, exist_ok=True)
 
     # Simulation pipeline execution loop
-    print(f"[STEP 3/3] Launching multi-scale simulation container for project: {project_name}")
+    ## Initialize the specialized structural clean streaming log manager module
+    print(f"\n[RUNNING PIPELINE EXECUTION] Initiating execution layer for project: '{project_name}'")
     print("----------------------------------------------------------------------")
+
+    command_payload = [str(executable_path), str(staged_xml_path)]
+    log_monitor = PhysiBoSSLogMonitor()
     
     ## Build execution command payload array referencing the isolated directory configuration
     command_payload = [str(executable_path), str(staged_xml_path)]
@@ -85,29 +93,21 @@ def run_physiboss_simulation(
             
             ### Read real-time diagnostic output streams from the running binary
             for log_line in process.stdout:
-                cleaned_line = log_line.strip()
-                
-                ### Write all raw standard output lines into the persistent log storage file
+                #### Write all raw standard output lines into the persistent log storage file
                 log_file.write(log_line)
                 log_file.flush()
                 
-                ### Filter and expose telemetry tracking patterns to the active terminal stdout
-                if "Currenttime" in cleaned_line or "agents" in cleaned_line or "Simulation" in cleaned_line:
-                    print(f"[RUNTIME TELEMETRY] {cleaned_line}")
-                    sys.stdout.flush()
-                elif "Error" in cleaned_line or "Exception" in cleaned_line:
-                    #### Catch core operational exception crashes immediately
-                    print(f"[CRITICAL ENGINE FAULT] {cleaned_line}", file=sys.stderr)
+                #### Clean and pipe metrics through the log monitor module interface
+                log_monitor.process_line(log_line)
 
             ### Synchronize process termination statuses
             exit_code = process.wait()
             
             if exit_code != 0:
-                ### Break loop on engine failure crash signals
                 raise RuntimeError(f"Simulation execution failed with exit code: {exit_code}")
 
     print("----------------------------------------------------------------------")
-    print(f"[PROCESS COMPLETED] Simulation logs written to: {logs_output}")
+    print(f"[PROCESS COMPLETED] Persistent execution trajectories recorded in: {logs_output}")
 
 # ----------------------------------
 # Helpers 
@@ -123,7 +123,7 @@ def _compile_physiboss_engine(physiboss_root: Path) -> None:
     :type physiboss_root: Path
     :raises RuntimeError: If any step of the C++ compilation pipeline fails.
     """
-    print(f"[STEP 2/3] Compiling PhysiBoSS C++ engine in: {physiboss_root}")
+    print(f"\n[COMPILATION STEP] Building PhysiBoSS C++ binary architecture in: {physiboss_root}")
     try:
         # Clear historic object frameworks to prevent linker caching issues
         ## Execute clean build target sequence
