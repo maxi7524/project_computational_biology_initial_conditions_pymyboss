@@ -1,0 +1,14 @@
+# workflow/envs/environment.yaml
+name: OmniPhysiBoss_env
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - python=3.12
+  - micromamba
+  - pip
+  - snakemake>=8.0
+  - gxx_linux-64       # Required for potential PhysiCell C++ compilation steps
+  - cmake              # Required for potential PhysiCell C++ compilation steps
+  - git                # Required for potential PhysiCell C++ compilation steps

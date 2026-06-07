@@ -1,262 +1,135 @@
 
+# OmniPhysiBoSS
+
+***
+
+## Introduction
+
+#TODO - poprawić sekcje 
+
+### Short description
+
+#TODO POPRAWIĆ 
+
+OmniPhysiBoSS is library which creates `PhysiBoSS` models based on given configuration. It allows to create models for `PhysiBoSS` from scratch in by using python code. Repository also contains prepared pipeline to for simulating spatial-sc tissue (#TODO - to co przewiduja te modele...) which, were i created of maboss models and intercelluar communication, from scratch based on `Omnitpath` and `decoupleR` references.  
+
+OmniPhysiBoSS is a Python library designed to programmatically generate and configure multi-scale PhysiBoSS models. It enables to construct complex agent-based models from scratch directly via Python code. The repository also includes a streamlined execution pipeline for simulating single-cell tissue dynamics. 
+#TODO - porawić
+This pipeline automates the generation of Boolean intracellular networks (MaBoSS) and intercellular signaling interactions by leveraging state-of-the-art reference data from OmniPath and decoupleR .
+
+### Key insights 
+
+- (#TODO - later) - Integration with `PhysiBoSS` via python code allowing to:
+  - ...
+  -fds
+- basic model for sc-spatial simulations, allowing to examine possible states / outcomes of tissue fragment
+
+- **Pythonic Model Generation:** Native programmatic interaction with the PhysiBoSS C++ core engine, eliminating the need for manual XML configuration.
+- **Multi-Scale Spatial Simulations:** Modeling framework to evaluate tissue-level behaviors, state transitions, and spatial cellular patterns from single-cell transcriptomics data.
+
+
+### Goal & Motivation
+
+My motivation was create models, which simulates inter-cellular communication on given sc-spatial data. I used already state-of-art model `PhysiBoSS` to simulate environment and figure out part responsible for giving initial conditions, based on several modalities, that is:
+-( #TODO - later tutaj muszę wypisać ponieważ ta część nie jest jeszcze gotowa) 
+
+The primary objective of OmniPhysiBoSS is to orchestrate intercellular and intracellular communication networks within highly resolved spatial single-cell datasets . By integrating state-of-the-art agent-based environments (PhysiCell/PhysiBoSS) with functional omics footprints (decoupleR, LIANA+, OmniPath), the framework automates the generation of baseline constraints, initial cellular states, and spatial initial conditions across distinct tissue modalities.
+
+<!-- Tutaj est to lepiej napisne   -->
 
 
 
-# Cel projektu
+***
 
-Chcemy stworzyć narzędzie które mapuje wyniki z LIANA+ (to jest mamy tutaj regulacje ich istotność itd.) na warunki początkowe pymyboss'a.
+## Table of contents 
 
-Będziemy chcieli to zrobić w kontekście klas komórek (bez danych przestrzennych) i z danymi przestrzennymi, wtedy będziemy uwzględniali dynamikę układu cząstek. CHcielibyśmy wtedy móc załadować taki układ. 
+#TODO - do it with markdown-toc generator 
 
+*** 
 
+<!-- ## Technical Documentation & Methodology Core -->
+## Documentation 
 
-# Struktura biblioteki 
+For detailed guidelines, implementation details, and theoretical background, navigate to the respective documentation sections below:
 
-1. Inicjalizacja obiektu
-   0. Podajemy mu adata z informacjaprzestrzenną oraz wyliczonymi parami ligand receptor (będziemy całość symulować na jakimś zbiorze)
-   1. Podajemy mu informacje w jakims obiekcie w unstructured data znajduje się ten element
-2. Zdefiniowanie modelu / konfiguracja ustawień
-   1. MaBoss
-      - Jaki model, to jest jakie pary ligand receptor będziemy brali pod uwagę:
-        - Wgrywamy istniejacy model / modele i tylko te związki i szlaki bierzemy pod uwagę
-        - robimy jakąś metodę która przeszukuje istniejące modele żeby wszysktie liczyć na raz (to nie jest aż takie złożone, ponieważ wszystkie te modele uruchamiamy naraz, NIEZALEŻNIE (ponieważ są to inne szlaki metaboliczne/sygnałowe))
-   2. Informacja przestrzenna 
-      - Ustalić jakie metryki i ustawienia będziemy stosować w przypadku korzystania z liany 
-      - Tutaj jest to ważne ponieważ na podstawie tych informacji przestrzennych skonstruujemy zależności pomiędzy kolejnymi komórkami
-   3. Konfiguracja lagów:
-      - Zdefiniować w jaki sposób lagi będą konstruowane, muszą one brać pod uwagę i odległość przestrzenną i zależności znane już z "powszechnej wiedzy"
-3. Ewaluacja
-    1. Badany obszar
-      - Nie jesteśmy w stanie badać całej tkanki, zatem będziemy musieli podać podzbiór komórek (niekoniecznie spójny), i wtedy dla KAŻDEJ badanej tkanki bierzemy otocznie (które w przypadku tej odłeglóści zdefionwanej w 2.2 nie jest zerowe) i tą komórke z TYM otoczeniem będziemy symulować)
-      - Osobno mamy metode które bierzey te warunki początkowe podczas symulacji ...
-    2. Warunki początkowe
-        - Na początku trzeba wyliczyć warunki początkowe i dla komórki i dla otoczneia (dla tej jednej iteracji bierzemy pod uwagę otoczenie otoczenia) 
-        - następnie przejdziemy to iteracji, i nie będziemy już liczyć warunków dla otoczenia otoczenia
-    3. Symulacja
-        - Następnie będziemy iterowac kolejne kroki, żeby otrzymać i będzimy zapisywać stężenia badanych związków podczas kolejnych iteracji. 
-    > WAŻNE: wszystkie obliczenia są wykonywane DOPIERO na etapie ewaluacji, ponieważ w ten sposób oszczędzamy i pamięć i koszt obliczeniowy redukujemy. 
-    
+- **[Modules](./docs/explanations%20/modules/README.md)**: Contains a comprehensive technical description of the implemented library modules. It explains the architectural design, internal code construction, and provides explicit instructions on how to modify or extend the codebase.
+- **[I/O Formats](./docs/explanations%20/io_formats/README.md)**: Serves as a developer-focused reference for debugging and system configuration. It specifies exact specifications for input and output data structures, detailing the files involved in the analysis pipeline (including parsing mechanisms, schema definitions, and expected formats).
+- **[Methodology](./docs/explanations%20/methodology/README.md)**: Combines the formal theoretical foundation of the problem with a detailed rationale behind our specific implementation. It explains the mathematical or biological modeling abstractions selected and justifies the algorithmic execution flow.
 
+## Installation & usage
 
+### Tutorials & reproduction
 
-# NOTATKI
+To learn how to use library go to `docs/tutorials/introduction_to_omniphysiboss.md.md`
 
-## Pytania koncepcyjne
-Symulujemy taki układ globalnie, czy potrzebujemy już istniejący model, czym możemy to zrobić na samej zasadzie istniejących warunków, widzę nastęujące problemy 
+To reproduce results from `report.pdf` go to  `docs/how_to/base_model-reproduction.md`
 
-Mamy informacje o komunikacje zewnątrz komórkowej oraz o intensywności występowania tych odczytów (receptor_means) więc na bazie tego możęmy to ustawić, ale w jaki sposób ustawić potem w jaki sposób następuje komunikacja wewnątrz komórkowa ??? 
+***
 
-Wydaje mi sie żę trzeba to zintegrować z istniejącymi modelami i wtedy podłączyćbo inaczej brakuje nam informacji wewntrz komórkowej skąd ewnetuanlie ją wziąć
+### comprehensive  explanation of documentation & methodology
 
+<!-- Here is explanations folder brief summary -->
 
-## Przygotowanie danych
+#TODO - napisć żę dokładnie to jest opisane tam i tam 
 
-### 1. Pobranie danych spatial-sc 
-Żeby wykonać
+### Environment setup and activation
 
-## LIANA
+To use repository you first need to clone it and instantiate environment as follows:
 
-Pozwala na odczytanie przestrzennych danych SC a następnie przeprowadzenie analizy dotyczącej tego jakie *szlaki sygnałowe* są aktywne. 
+```bash
+# create `OmniPhysiBoss_env` environment 
+micromamba create -f workflow/envs/environment.yaml -y
 
-Format danych:
-```shell
-ligand	ligand_complex	ligand_means	ligand_props	receptor	receptor_complex	receptor_means	receptor_props	source	target	lr_means	cellphone_pvals
-482	HLA-DRA	HLA-DRA	4.537684	0.995833	CD4	CD4	0.612842	0.421053	Dendritic	CD4+/CD45RO+ Memory	2.575263	0.000
-321	HLA-DRA	HLA-DRA	4.537684	0.995833	CD4	CD4	0.596125	0.500000	Dendritic	CD4+/CD45RA+/CD25- Naive T	2.566905	0.000
+# Installs the local OmniPhysiBoss package 
+pip install -e .           
+
+# activation of new environment
+micromamba activate OmniPhysiBoss_env 
+
+# run script that clone OmniPhysiBoSS repository and sets it checked version
+python scripts/utils/install_OmniPhysiBoSS.py
 ```
 
-## pymyboss 
+> REMARK - everyone: Do not clone OmniPhysiBoSS separately. If commits would change critical paths (f.e. compilation files) whole script will broke. 
 
-Tworzymy obiekt z wierzchołkami, czym one są ??
-
-Format 
-```python
-nd_dnaDam = Node('DNAdam', '!p53_b1 & DNAdam', 1, 1)
-nd_p53_b1 = Node('p53_b1', '!p53_b2 & !Mdm2nuc | p53_b2', 1, 1)
-nd_p53_b2 = Node('p53_b2', 'p53_b1 & !Mdm2nuc', 1, 1)
-nd_mdm2cyt = Node('Mdm2cyt', 'p53_b1 & p53_b2', 1, 1)
-nd_mdm2nuc = Node('Mdm2nuc', '!p53_b1 & !Mdm2cyt & !DNAdam | !p53_b1 & Mdm2cyt| p53_b1 & Mdm2cyt', 1, 1)
-```
-
-Stany początkowe:
-```python
-testNet.set_istate(['p53_b1', 'p53_b2'],
-                   {(0, 0): 1, (1, 0): 0, (1, 1): 0})
-testNet.set_istate('Mdm2cyt', [1, 0])
-testNet.set_istate('Mdm2nuc', [1, 0])
-testNet.set_istate('DNAdam', [0.4, 0.6])
-```
-
-Mamy także metodę `mutate`, pozwala ona na włączanie wyłączanie genu (to by mogło być dobre do danych przestrzennych, to jest byśmy mieli ogólny model dla pewnych komórek itd. i byśmy uruchamiali on/off dla różnych ??? 
-
-```md
-UpPMaBoSS computes the evolution and the dynamics of a population of cells taking into account both their intracellular and intercellular regulations.
-
-Simulations with UpPMaBoSS are based on a logical model describing the intracellular regulations (logical regulatory graph complemented with logical rules), taking into account cell death, cell division, and intercellular communications.
-```
-
-
-# Dokumentacja do zrobienia 
-
-Dokumentacja będzie rozbita na główne README.md w którym będą linki do poszczególnych plików .md w folderze `docs`
-
-## Description 
-Ogólny opis co jest zaimplementowane w bibliotece, jak tego używać 
-
-## Installation (separate .md)
-Jak zainstalować tą bibliotekę,
-- instrukcja jak zainstalować maboss'a 
-- gotowy skrypt do środowiska micromamba/conda
-- informacja jak uruchomić bibliotekę w trybie developerskim (jak to ustawić inaczej)
-
-## Report file (separate .md)
-
-Here we will present report in our .md with links to given .ipynb notebooks which contains scripts with remarks about methodology, and gathered information about results. 
-
-## Tutorial - basics (separate .md) 
-Wytłumaczenie jak z tego korzystać, co jest ważne w użyciu i dlaczego, więc kolejno będziemy omawiać
-- jakie dane potrzebujemy 
-- jak procesować takie dane
-- jak potem ustawić Liane żeby odpowiednio przejść potok (resources, dla myszy i człowieka omówić) 
-- potem jak ustawić model i dlaczego
-- jak potem wywołać trenowanie
-- jak interpretować wyniki, na co zwrócić uwagę
-
-> Format .ipynb który opisuje to kroki, musi być taki ze się odpala: uruchom wszystko u góry i to idzie (z uwagą że trzeba osobno dane pobrać)
+> REMARK - developer: If you want to change repository i advice you to install addiotnal dependencies:
+> ```bash
+> pip install -e .[docs]
+> ```
 >
 
-### Data type
+### Resource Requirements & Deployment Timeline
+The installation requires **3.1 – 3.7 GB** of disk space and takes approximately **13 – 25 minutes** to complete, depending on your network speed and CPU performance.
 
-#### Goal
-We want to load `spatial-sc` into `adata` object. 
-
-#### Explanation 
-In pipeline we use `spatial-sc` data. Our data consists of:
-- `HDF5` file, which contains compressed count matrix ($\mathrm{positions} \times \mathrm{genes}$) representing UMI barcodes counts 
-- `spatial` folder, which contains tissue positions which contains mapping of $\mathrm{barcode_i} \rightarrow \mathrm{pixel\ coordination}:=(X_i,Y_i)$
-
-
-#### Methodology - data loading examples 
-
-##### 10x Genomics
-- [Example download script](link do skryptu)
-- [Example load example](link do notebook'a i odpowiedniego paragrafu)
+| Component | Est. Size | Description |
+| --- | --- | --- |
+| **Micromamba Env** | 1.8 – 2.2 GB | Python 3.12, Snakemake, C++ toolchains. |
+| **Omics Deps** | 0.8 – 1.1 GB | `scanpy`, `anndata`, `liana`, `decoupler`. |
+| **PhysiBoSS Engine** | ~0.4 GB | Source code & compiled binaries. |
 
 
-##### ...
-#TODO - dodać kolejne typy, (bazując na tych naszych analizach, ponieważ będziemy odpalać rózne typy danych więc będziemy mieli już gotowe skrypty które to ładują) 
+***
 
+## Contributing
 
+Contributions to OmniPhysiBoSS are welcome. Please read `CONTRIBUTING.md` for detailed instructions regarding our dewatering environment setup, code formatting standards, and testing suites.
 
-### Liana setup 
-Here we setup liana graph considering results from `liana+` article and documentation.
+### Academic Attributions & Citations
 
-You can perform it by manually going through following steps, or you can use `BuildSpatialContext` method which automatically go through those steps and sets optimal parameters. 
+If you use OmniPhysiBoSS in your research, please cite this framework alongside the foundational upstream multi-scale engines :
 
-#### Preprocessing data
+* **OmniPhysiBoSS (This Framework):** Stróżyk M, et al. (2026). OmniPhysiBoSS: Programmatic Generation and Orchestration of Multi-Scale Spatial Boolean Microenvironment Models.
+* **PhysiBoSS (Multi-Scale Core Engine):** Ponce-de-Leon M, et al. *Bioinformatics*, 2023. DOI: [10.1038/s41540-023-00314-4](https://doi.org/10.1038/s41540-023-00314-4) .
+* **PhysiCell (Spatial Agent-Based Framework):** Ghaffarizadeh A, et al. *PLoS Computational Biology*, 2018. DOI: [10.1371/journal.pcbi.1005991](https://doi.org/10.1371/journal.pcbi.1005991) .
+* **MaBoSS (Continuous-Time Boolean Core):** Stoll G, et al. *Bioinformatics*, 2017. DOI: [10.1093/bioinformatics/btx139](https://doi.org/10.1093/bioinformatics/btx139) .
+* **decoupleR (Footprint Phenotype Inference):** Badia-i-Mompel J, et al. *Bioinformatics Advances*, 2022. DOI: [10.1093/bioinformaticsadvances/vbac016](https://doi.org/10.1093/bioinformaticsadvances/vbac016) .
+* **LIANA+ (Intercellular Communication):** Dimitrov D, et al. *Bioinformatics*, 2022. DOI: [10.1093/bioinformatics/btac286](https://doi.org/10.1093/bioinformatics/btac286) .
 
-##### Preserving raw matrix
-To preserve raw matrix (which is later used), we save by:
-```python
-adata.raw = raw
-``` 
+***
 
-##### Library size normalization 
-We normalize library size, through different cells 
+## Author
+**Max Stróżyk** - University of Warsaw
 
-To unify counts due to different cells coverage we apply normalization:
-```python
-sc.pp.normalize_total(adata, target_sum=1e4)
-```
+## License
+This project is licensed under the MIT License - see the `LICENSE` file for details.
 
-##### Log-transformation
-We transform our data by applying transformation $f$ given by:
-$$f(x) = \mathrm{ln}(x+1)$$
-
-Some genes have much bigger expression then the others. In `liana+` algorithms are sensitive for scale, as in algorithms we mostly calculate dot products or similiar operators. 
-
-```shell
-sc.pp.log1p(adata)
-```
-
-#### Create continuous graph  
-Here we create graph with computed distances between cells
-
-To obtain any neighbors we need to adjust bandwidth parameter. We obtain it by using  `li.ut.query_bandwidth` and taking smallest bandwidth with at least 6 neighbors. We set `cutoff=0.1` to get rid of noise and `set_diag=False` to obtain 0 for it self - it is important, otherwise intracellular communication is introduced as extracellular. 
-
-```python
-# obtain bandwidth data
-plot, df_bandwith_vs_neighbours = li.ut.query_bandwidth(coordinates=adata.obsm['spatial'], start=0, end=500, interval_n=20)
-df_bandwith_vs_neighbours
-
-# obtain minimum bandwidth
-min_bandwidth = df_bandwith_vs_neighbours[df_bandwith_vs_neighbours['neighbours'] >= 6]['bandwith'].min()
-
-# calculate neighbors 
-li.utils.spatial_neighbors(
-    adata, 
-    bandwidth=min_bandwidth, 
-    cutoff=0.1, 
-    kernel='gaussian', 
-    set_diag=True
-)
-```
-
-#### Identify ligand receptor pair
-Here we compute Ligand-Receptor pairs.
-
-  From literature we use `local_name='cosine'` as it not sensitive for ... . We do not use permutational test (`n_perms=None`) because we not look for unique biological signal. We use `mask_negatives=True`, to get rid of local noise (low expression ligand/receptor below mean value of noise). 
-
-```python
-li.mt.bivariate(
-    adata,
-    local_name='cosine',
-    global_name=None,
-    # REMARK - this depends on speciee
-    resource_name='consensus',
-     # graph key for `SpatialEnvironment`
-    connectivity_key='spatial_connectivities',
-    n_perms=None,
-    mask_negatives=True, # we remove low-low 
-    use_raw=False,'
-    # for analysis reproducibility
-    seed=1337
-)
-```
-
-To obtain ligand-receptor pairs we need to provide `consensus` (databases with ligand receptor pair for **certain specie**), `connectivity` which is calculated distance from `spatial_neighbors` (last paragraph) and similiarity metric, which by default we set ... (#TODO - join with last part) 
-
-For mouse species i suggest using following resource: 
-```python
-mouse_resource = li.rs.select_resource(resource_name='mouseconsensus')
-
-```
-
-
-
-### Model setup 
-
-Explain how we setup certain parameters and why we do it. 
-
-#### Simulation settings and how to run it 
-
-### Simulation methodology
-Deeply explanation of simulation
-
-
-## Tutorial - results interpretation (separate .md)
-
-Here we will present simple
-
-### Training loop
-
-Here we explain deeply methodology what model does during simulation. 
-
-
-## Model adjustment (separate .md) 
-Here we will describe how to change certain modules of models, and describe structure of library for users who want to modify existing model. 
-
-
-
-
-## General remarks 
