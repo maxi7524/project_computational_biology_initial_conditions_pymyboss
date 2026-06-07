@@ -111,9 +111,14 @@ def run_liana_multimodal_pipeline(
         'x_mod': x_mod,
         'y_mod': y_mod,
         'local_name': local_name,
-        'global_name': None,
+        # TODO experiment - for finding if spatial positions are important
+        'global_name': 'morans',
         'resource_name': resource_name,
-        'n_perms': None,
+        # TODO experiment - for finding randomness of certain signals (permutation tests)
+        'n_perms': 1_000,
+        # 'n_perms': None,
+        # TODO experimental 
+        'add_categories': True,
         'mask_negatives': True,
         'seed': seed,
         'connectivity_key': expected_obsp_key,
