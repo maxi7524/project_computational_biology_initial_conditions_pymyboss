@@ -3,7 +3,7 @@
 
 ## Introduction
 
-### Abstract functionality
+### Abstract Functionality
 (można zrobić szerzej niż w zbiorzym pliku, albo zrobić tak że zbiorczy plik podpina sobie ten fragment (wtedy znowu, nie trzeba poprawiać wa razy - ta wersja wydaje mi się lepsza))
 Tutaj opisujemy co nasz moduł robi abstrakcyjnie, będzie to załączone do głównego docs'a opisującego moduły 
 
@@ -26,9 +26,9 @@ Przejście jak ten plik jest wykonywany w pipeline'ie (jaki jest zamysł używan
    :show-inheritance:
 ```
 
-## Developer section (można nazwe zmienic)  
+## Developer & Modification Guide
 
-### Usage blueprint (można inną nazwe) 
+### Usage blueprint 
 - przykład dokładny jak z tego korzystać, 
 - później w tym contribution, można własnie napisąc że jak ktoś chce zrozumieć jak moyfikowad biblioteke to niech wejdzie do tych modułów i te usage .. zobczy, albo można zrobić taki docs który zbiera z tych docsów te usage ... i jeszcze opisuje to z innej perspektywy (pod kątem jak modyfikować) 
 
