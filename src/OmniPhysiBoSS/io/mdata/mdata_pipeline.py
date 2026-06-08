@@ -3,7 +3,7 @@
 # =============================================================================
 
 import mudata as mu
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Literal
 
 # Structural package imports for pipeline stage execution
 from .utils.unify.unify_modalities import unify_multimodal_data
@@ -17,6 +17,7 @@ from .utils.validate.mdata_types import OMNI_PHYSIBOSS_SCHEMA
 
 def run_mdata_processing_pipeline(
     mdata: mu.MuData,
+    specie: Literal['mouse', 'human'],  
     key_mappings: Optional[Dict[str, str]] = None,
     modalities: Optional[List[str]] = None,
     main_modality: str = "rna",
@@ -32,6 +33,8 @@ def run_mdata_processing_pipeline(
 
     :param mdata: High-dimensional multi-modal container asset.
     :type mdata: mu.MuData
+    :param specie: Target organism for Liana+ resource selection; must be 'mouse' or 'human'.
+    :type specie: Literal['mouse', 'human']
     :param key_mappings: Dict translating custom runtime names to canonical schema names (e.g., {'xxx': 'spatial'}).
     :type key_mappings: Optional[Dict[str, str]]
     :param modalities: List of modality keys to include in the alignment join.
@@ -48,6 +51,7 @@ def run_mdata_processing_pipeline(
     :rtype: mu.MuData
     :raises KeyError: If mandatory validation boundaries or configuration parameters are violated.
     """
+
     # Pipeline initialization and structural remapping phase
     ## Resolve custom input name mappings to enforce strict global schema consistency
     if key_mappings:
@@ -82,12 +86,15 @@ def run_mdata_processing_pipeline(
 
     # Execute spatial neighborhood cross-correlation metrics via LIANA+ pipeline
     ## Compute localized intercellular communication weights and assign results
+    ### choose mouse or human resourse 
+    resource_name = 'mouseconsensus' if specie == 'mouse' else 'consensus'
     harmonized_mdata = run_liana_multimodal_pipeline(
         mdata=harmonized_mdata,
         x_mod=main_modality,
         y_mod=main_modality,
         output_modality_key=main_modality,
-        liana_key=liana_uns_key
+        liana_key=liana_uns_key,
+
     )
     # Intracellular reference acquisition phase
     ## Fetch and annotate signed directed intracellular signaling graphs from OmniPath clients
