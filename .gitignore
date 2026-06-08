@@ -4,6 +4,7 @@ logs
 external
 .env
 .ipynb_checkpoints/
+src/MaBossSpatial
 
 # ???
 .DS_Store

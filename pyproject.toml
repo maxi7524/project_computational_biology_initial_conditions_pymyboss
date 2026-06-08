@@ -22,6 +22,7 @@ dependencies = [
     "scanpy>=1.9.0",    # Single-cell analysis library integrations
     "liana>=1.0.0",     # Intercellular communication scoring protocols
     "decoupler>=1.6.0", # Footprint pathway and transcription factor scoring algorithms
+    # i do not use `pypath-omnipath` as it is heavier and we do not modify databases
     "omnipath>=1.0.6",  # Biological database prioritization query engine
     #TODO - here we need to include version
     "pcdl"              # PhysiCell Data Loader library for trajectory extraction

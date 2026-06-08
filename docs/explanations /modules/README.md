@@ -52,10 +52,10 @@ The execution lifecycle transitions sequentially through four functional boundar
 ### 1. [IO Module](./io_module.md)
 Acts as an initial validation layer and metadata decorator. It ingests raw configuration structures, checks text formats, validates spatial constraints, and handles descriptive error parsing to provide clear feedback during execution bottlenecks.
 
-### 2. [Models Module](./models.md)
+### 2. [Models Module](./models_module.md)
 Houses standalone, standardized computational abstractions. Every independent simulation model inherits from a rigid abstract base class wrapper to guarantee structural and functional validity before entering down-stream compilers.
 
-### 3. [Configurators Module](./configurators.md)
+### 3. [Configurators Module](./configurators_module.md)
 An orchestration layer that programmatically builds, alters, and manages standalone input profiles for MaBoSS networks and PhysiCell spatial engines. It abstracts complex XML transformations into simple, atomic functional commands.
 
 ### 4. [Wrappers Module](./wrappers_module.md)
