@@ -1,8 +1,10 @@
 Markdown
 # Software Architecture & Library Modules
 
-The `OmniPhysiBoSS` framework is constructed using an entirely decoupled, modular architecture. High-level Python configurations and data validation modules are strictly separated from the low-level, compiled C++ simulation execution mechanics to ensure maximum reproducibility, maintainability, and clean data processing paths.
 
+The `OmniPhysiBoSS` framework is constructed using an decoupled, modular architecture. It allows for modification of certain parts.
+
+Library also provides tests for inputs and outputs to ensure formats are valid. 
 ---
 
 ## The Core Concept

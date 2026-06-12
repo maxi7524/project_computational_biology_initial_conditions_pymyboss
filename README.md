@@ -52,9 +52,9 @@ The primary objective of OmniPhysiBoSS is to orchestrate intercellular and intra
 
 For detailed guidelines, implementation details, and theoretical background, navigate to the respective documentation sections below:
 
-- **[Modules](./docs/explanations%20/modules/README.md)**: Contains a comprehensive technical description of the implemented library modules. It explains the architectural design, internal code construction, and provides explicit instructions on how to modify or extend the codebase.
-- **[I/O Formats](./docs/explanations%20/io_formats/README.md)**: Serves as a developer-focused reference for debugging and system configuration. It specifies exact specifications for input and output data structures, detailing the files involved in the analysis pipeline (including parsing mechanisms, schema definitions, and expected formats).
-- **[Methodology](./docs/explanations%20/methodology/README.md)**: Combines the formal theoretical foundation of the problem with a detailed rationale behind our specific implementation. It explains the mathematical or biological modeling abstractions selected and justifies the algorithmic execution flow.
+- **[Modules](./resources/docs/explanations/modules/README.md)**: Contains a comprehensive technical description of the implemented library modules. It explains the architectural design, internal code construction, and provides explicit instructions on how to modify or extend the codebase.
+- **[I/O Formats](./resources/docs/explanations/io_formats/README.md)**: Serves as a developer-focused reference for debugging and system configuration. It specifies exact specifications for input and output data structures, detailing the files involved in the analysis pipeline (including parsing mechanisms, schema definitions, and expected formats).
+- **[Methodology](./resources/docs/explanations/methodology/README.md)**: Combines the formal theoretical foundation of the problem with a detailed rationale behind our specific implementation. It explains the mathematical or biological modeling abstractions selected and justifies the algorithmic execution flow.
 
 ## Installation & usage
 
