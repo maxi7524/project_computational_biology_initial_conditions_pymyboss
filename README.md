@@ -87,7 +87,7 @@ pip install -e .
 micromamba activate OmniPhysiBoss_env 
 
 # run script that clone OmniPhysiBoSS repository and sets it checked version
-python scripts/utils/install_OmniPhysiBoSS.py
+python resources/scripts/utils/install_OmniPhysiBoSS.py
 ```
 
 > REMARK - everyone: Do not clone OmniPhysiBoSS separately. If commits would change critical paths (f.e. compilation files) whole script will broke. 
