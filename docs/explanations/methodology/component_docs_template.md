@@ -106,3 +106,23 @@ $$\mu_C = \frac{1}{|C|} \sum_{i \in C} y_i$$
 #TODO: Step-by-step implementation execution logic.
 
 ```
+
+---
+
+## To Consider 
+
+```plaintext
+#TODO: All decision which need to be rethink during implementation, such as reference databases etc. 
+
+```
+
+---
+
+## Discussion
+
+### Strategy 1:
+
+```plaintext
+#TODO: Same format as in strategies but those are not available in code 
+
+```
