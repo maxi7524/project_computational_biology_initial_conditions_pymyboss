@@ -1,16 +1,15 @@
 import mudata as mu
+import warnings
 from typing import List
 from .validate_unify_modalities_overlap_failure import validate_separated_modalities_overlap
 from OmniPhysiBoSS.utils.logger import get_custom_logger
+from ..common import safe_synchronize_mudata_layers
 
 logger = get_custom_logger(__name__)
 
 # ==============================================================================
-# Data Harmonization Layer
+# Data Intersection Alignment Layer
 # ==============================================================================
-# TODO tests
-# check if mdata contains all needed dictonaries
-# check intersection functionality very 
 
 
 def unify_multimodal_data(
@@ -20,7 +19,7 @@ def unify_multimodal_data(
 ) -> mu.MuData:
     """
     Performs a strict mathematical inner join across specified omics layers,
-    logs detailed data retention statistics, and synchronizes reference arrays.
+    enforces feature index uniqueness, and synchronizes structural references.
 
     :param mdata: The unaligned input multimodal container.
     :type mdata: mu.MuData
@@ -32,19 +31,24 @@ def unify_multimodal_data(
     :rtype: mu.MuData
     """
     # Structural configuration and boundary checks
-    logger.info("Starting multimodal data harmonization matrix pipeline.")
+    logger.info("Starting multimodal data intersection alignment matrix pipeline.")
     ## Validate that the requested omics layers list contains entries
     if not modalities:
         raise ValueError("The modalities list cannot be empty for alignment.")
 
-    logger.info("--- MULTIMODAL DATA HARMONIZATION & DATA LOSS REPORT ---")
+    logger.info("--- MULTIMODAL DATA INTERSECTION ALIGNMENT & DATA LOSS REPORT ---")
 
-    # Modality size profiling loop
-    ## Record initial observation counts for every independent tracking layer
+    # Modality size profiling and index sanitization loop
+    ## Record initial observation counts and force variable name uniqueness
     initial_sizes = {}
     for mod in modalities:
         if mod in mdata.mod:
             initial_sizes[mod] = mdata[mod].n_obs
+            
+            ### Enforce variable name uniqueness to prevent downstream mapping collisions
+            logger.debug("Enforcing unique variable names for modality layer: %s", mod)
+            mdata[mod].var_names_make_unique()
+            
             logger.info("Modality Input Size - Layer '%s': initially contains %s cells.", mod, initial_sizes[mod])
         else:
             raise KeyError(f"Requested modality '{mod}' not located in MuData object.")
@@ -72,12 +76,11 @@ def unify_multimodal_data(
 
     if final_count == 0:
         logger.error("Strict intersection resulted in 0 shared cellular barcodes across specified layers.")
-        # Generujemy słownik diagnostyczny z walidatora i logujemy go w debugu
         diag_report = validate_separated_modalities_overlap(mdata, modalities)
         logger.debug("Intersection failure diagnostics report: %s", diag_report)
         raise RuntimeError("Strict intersection resulted in 0 shared cellular barcodes.")
     
-    logger.info("Harmonization Complete: %s cells mutually shared across all layers.", final_count)
+    logger.info("Intersection Alignment Complete: %s cells mutually shared across all layers.", final_count)
 
     # Container slice and reconstruction phase
     ## Extract synchronized deep copies of independent sub-modules
@@ -86,8 +89,14 @@ def unify_multimodal_data(
         synchronized_modules[mod] = mdata[mod][shared_cells_list].copy()
         logger.debug("Synchronized slice extracted for modality module: %s", mod)
 
-    ## Reconstruct the unified multimodal array framework
-    harmonized_mdata = mu.MuData(synchronized_modules)
+    ## Reconstruct the unified multimodal array framework pod wyciszonym filtrem ostrzeżeń
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", category=FutureWarning, module="mudata")
+        harmonized_mdata = mu.MuData(synchronized_modules)
+    
+    ## Enforce global MuData level variable name uniqueness to clean up multi-omics cross-collisions
+    logger.debug("Enforcing global variable name uniqueness across combined omics layers.")
+    harmonized_mdata.var_names_make_unique()
     
     # Global tracking array initialization block
     ## Ensure that the anchor modality contains fully instantiated tracking dicts
@@ -107,7 +116,9 @@ def unify_multimodal_data(
     harmonized_mdata.uns = main_adata.uns
     harmonized_mdata.obsm = main_adata.obsm
     
-    ## Synchronize internal structure states globally
-    harmonized_mdata.update()
+    ## Synchronize internal structure states explicitly enforcing forward-compatible conventions
+    logger.debug("Executing explicit structural data pulls to global containers.")
+    safe_synchronize_mudata_layers(harmonized_mdata, pull_obs=True, pull_var=False, inplace=True)
+    
     logger.info("Global structural array updates synchronized.")
     return harmonized_mdata

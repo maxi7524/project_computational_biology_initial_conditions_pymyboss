@@ -14,7 +14,8 @@ logger = get_custom_logger(__name__)
 def fetch_intracellular_pathway_network(
     mdata: mu.MuData,
     output_key: str = "omnipath_intracellular",
-    resources: Optional[List[str]] = ["OmniPath", "SIGNOR", "NetPath"]
+    resources: Optional[List[str]] = ["SIGNOR", "NetPath"],
+    datasets: Optional[List[str]] = ["omnipath"]
 ) -> mu.MuData:
     """
     Query and format the directed, signed intracellular signaling network from OmniPath.
@@ -23,16 +24,20 @@ def fetch_intracellular_pathway_network(
     :type mdata: mu.MuData
     :param output_key: Target metadata storage key under root .uns, defaults to "omnipath_intracellular".
     :type output_key: str
-    :param resources: Core database source registries to filter directed pathways, defaults to ["OmniPath", "SIGNOR", "NetPath"].
+    :param resources: Core database registries to filter source pathways, defaults to ["SIGNOR", "NetPath"].
     :type resources: Optional[List[str]]
+    :param datasets: Broad OmniPath specific network datasets to pull, defaults to ["omnipath"].
+    :type datasets: Optional[List[str]]
     :return: The updated multimodal container updated with the structured intracellular network.
     :rtype: mu.MuData
     """
+
     # Remote database acquisition phase
-    ## Pull curated kinase/phosphatase and transcriptional pathways from server
-    logger.info("Requesting intracellular interaction pathways from OmniPath using resources: %s", resources)
+    ## Pull curated kinase/phosphatase and transcriptional pathways from server using strict parameter definitions
+    logger.info("Requesting intracellular pathways from OmniPath. Filtering via datasets: %s, resources: %s", datasets, resources)
     raw_network = op.interactions.AllInteractions.get(
-        resources=resources
+        resources=resources,
+        datasets=datasets
     )
 
     # Topological consistency constraint selection

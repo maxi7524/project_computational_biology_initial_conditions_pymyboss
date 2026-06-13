@@ -13,10 +13,23 @@ from .utils.spatial.liana_multimodal_pipeline import run_liana_multimodal_pipeli
 # Validation functions will be imported from the restructured validate submodule
 from .utils.validate.mdata_validator import verify_structural_presence
 from .utils.validate.mdata_types import OMNI_PHYSIBOSS_SCHEMA
+from .utils.common import safe_synchronize_mudata_layers
 
 from OmniPhysiBoSS.utils.logger import get_custom_logger
 
 logger = get_custom_logger(__name__)
+
+
+# Global configuration and warning management
+## Suppress future compatibility warnings from the MuData library
+import warnings
+warnings.filterwarnings("ignore", category=FutureWarning, module="mudata")
+
+## Enforce safe library behavior by disabling pull_on_update
+import mudata as mu
+mu.set_options(pull_on_update=False)
+
+
 
 
 def run_mdata_processing_pipeline(
@@ -27,13 +40,15 @@ def run_mdata_processing_pipeline(
     main_modality: str = "rna",
     liana_uns_key: str = "liana_res",
     intercell_output_key: str = "intercellular_metadata_df",
-    intracellular_output_key: str = "intracellular_metadata_df"
+    intracellular_output_key: str = "intracellular_metadata_df",
+    intracellular_resources: Optional[List[str]] = None,
+    intracellular_datasets: Optional[List[str]] = None
 ) -> mu.MuData:
     """
     Execute the complete orchestration pipeline for multi-modal data preparation.
 
     This facade handles structural key remapping, validation schema enforcement,
-    cellular intersection harmonization, and OmniPath network annotation injection.
+    cellular intersection alignment, and OmniPath network annotation injection.
 
     :param mdata: High-dimensional multi-modal container asset.
     :type mdata: mu.MuData
@@ -51,6 +66,10 @@ def run_mdata_processing_pipeline(
     :type intercell_output_key: str
     :param intracellular_output_key: Destination root .uns key for intracellular network edgelist, defaults to "omnipath_intracellular".
     :type intracellular_output_key: str
+    :param intracellular_resources: Filter registries for OmniPath intracellular network, defaults to None.
+    :type intracellular_resources: Optional[List[str]]
+    :param intracellular_datasets: Broad database datasets selection for OmniPath signaling, defaults to None.
+    :type intracellular_datasets: Optional[List[str]]
     :return: Dimensionally aligned and network-annotated MuData container.
     :rtype: mu.MuData
     :raises KeyError: If mandatory validation boundaries or configuration parameters are violated.
@@ -83,8 +102,8 @@ def run_mdata_processing_pipeline(
     
     # Mathematical join alignment phase
     ## Execute the inner join operation to synchronize cellular observation tracking indexes
-    logger.info("Initiating multimodal data harmonization across omics layers.")
-    harmonized_mdata = unify_multimodal_data(
+    logger.info("Initiating multimodal data intersection alignment across omics layers.")
+    synchronized_mdata = unify_multimodal_data(
         mdata=mdata,
         modalities=modalities,
         main_modality=main_modality
@@ -92,11 +111,10 @@ def run_mdata_processing_pipeline(
 
     # Execute spatial neighborhood cross-correlation metrics via LIANA+ pipeline
     ## Compute localized intercellular communication weights and assign results
-    ### choose mouse or human resourse 
     resource_name = 'mouseconsensus' if specie == 'mouse' else 'consensus'
     logger.info("Executing spatial neighborhood cross-correlation metrics using resource: %s", resource_name)
-    harmonized_mdata = run_liana_multimodal_pipeline(
-        mdata=harmonized_mdata,
+    synchronized_mdata = run_liana_multimodal_pipeline(
+        mdata=synchronized_mdata,
         x_mod=main_modality,
         y_mod=main_modality,
         output_modality_key=main_modality,
@@ -104,18 +122,20 @@ def run_mdata_processing_pipeline(
     )
     
     # Intracellular reference acquisition phase
-    ## Fetch and annotate signed directed intracellular signaling graphs from OmniPath clients
+    ## Fetch and annotate signed directed intracellular signaling graphs from OmniPath clients using dynamic variables
     logger.info("Fetching directed intracellular signaling graphs from OmniPath.")
-    harmonized_mdata = fetch_intracellular_pathway_network(
-        mdata=harmonized_mdata,
-        output_key=intracellular_output_key
+    synchronized_mdata = fetch_intracellular_pathway_network(
+        mdata=synchronized_mdata,
+        output_key=intracellular_output_key,
+        resources=intracellular_resources,
+        datasets=intracellular_datasets
     )
 
     # Intercellular metadata compilation phase
     ## Merge spatial information with external communication receptor-ligand annotations
     logger.info("Compiling intercellular metadata with OmniPath intercell annotations.")
-    harmonized_mdata = fetch_liana_interactions(
-        mdata=harmonized_mdata,
+    synchronized_mdata = fetch_liana_interactions(
+        mdata=synchronized_mdata,
         liana_uns_key=liana_uns_key,
         output_uns_key=intercell_output_key
     )
@@ -123,7 +143,7 @@ def run_mdata_processing_pipeline(
     # Global synchronization execution
     ## Refresh internal structural coordinates across all child modalities
     logger.info("Refreshing internal structural coordinates globally.")
-    harmonized_mdata.update()
+    safe_synchronize_mudata_layers(synchronized_mdata, pull_obs=True, pull_var=False, inplace=True)
     logger.info("Multi-modal processing pipeline completed successfully.")
 
-    return harmonized_mdata
+    return synchronized_mdata

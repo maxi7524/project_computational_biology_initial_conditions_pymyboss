@@ -5,8 +5,12 @@ import liana as li
 import pandas as pd
 from typing import Tuple
 from OmniPhysiBoSS.utils.logger import get_custom_logger
+from ..common import safe_synchronize_mudata_layers
+import warnings
 
 logger = get_custom_logger(__name__)
+
+
 
 # Main functional cross-correlation pipeline interface
 def run_liana_multimodal_pipeline(
@@ -100,13 +104,16 @@ def run_liana_multimodal_pipeline(
         "key_added": base_conn_key
     }
 
+
+
+
     logger.info("Computing spatial neighbors into modality '%s'.obsp['%s']...", x_mod, expected_obsp_key)
     li.ut.spatial_neighbors(**neighbors_config)
 
     # Global tracking sync phase
     ## Mirror internal graph structural allocations to the global root pointers
     mdata.obsp = mdata[x_mod].obsp
-    mdata.update()
+    safe_synchronize_mudata_layers(mdata, True, False, inplace=True)
 
     # Local bivariate association scoring block
     ## Package customized multimodal tracking options into the payload array
@@ -133,7 +140,12 @@ def run_liana_multimodal_pipeline(
     }
 
     logger.info("Computing bivariate association scores via '%s'...", local_name)
-    bivariate_res = li.mt.bivariate(**bivariate_config)
+
+    # Context manager to suppress duplicate variable names warnings inside external library code
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", category=UserWarning, module="anndata")
+        warnings.filterwarnings("ignore", category=UserWarning, module="liana")
+        bivariate_res = li.mt.bivariate(**bivariate_config)
 
     # Post-processing result mapping phase
     ## Route computed data tables back into the requested output modality workspace
@@ -144,7 +156,7 @@ def run_liana_multimodal_pipeline(
         logger.error("Critical: Bivariate execution returned empty context framework asset.")
 
     ## Finalize data update sequences across all managed modules
-    mdata.update()
+    safe_synchronize_mudata_layers(mdata, True, False, inplace=True)
     return mdata
 
 
