@@ -4,6 +4,9 @@ import scanpy as sc
 import liana as li
 import pandas as pd
 from typing import Tuple
+from OmniPhysiBoSS.utils.logger import get_custom_logger
+
+logger = get_custom_logger(__name__)
 
 # Main functional cross-correlation pipeline interface
 def run_liana_multimodal_pipeline(
@@ -60,6 +63,7 @@ def run_liana_multimodal_pipeline(
     :rtype: mu.MuData
     """
     # Parameter derivation and optimization phase
+    logger.info("Initializing run_liana_multimodal_pipeline execution tracking.")
     ## Extract spatial coordinates matrix from the source modality workspace
     adata_spatial = mdata[x_mod]
     spatial_coords = adata_spatial.obsm['spatial']
@@ -68,7 +72,7 @@ def run_liana_multimodal_pipeline(
     base_conn_key, expected_obsp_key = _sanitize_connectivity_key(connectivity_key)
 
     # Dynamic bandwidth scanning loop
-    print(f"\n[-] Scanning spatial density distributions for modality: '{x_mod}'...")
+    logger.info("Scanning spatial density distributions for modality: '%s'...", x_mod)
     _, df_bandwidth = li.ut.query_bandwidth(
         coordinates=spatial_coords,
         start=0,
@@ -80,10 +84,10 @@ def run_liana_multimodal_pipeline(
     valid_rows = df_bandwidth[df_bandwidth['neighbours'] >= 6]
     if not valid_rows.empty:
         min_bandwidth = float(valid_rows['bandwith'].min())
-        print(f" -> Optimal mathematical bandwidth isolated (k >= 6): {min_bandwidth}")
+        logger.info("Optimal mathematical bandwidth isolated (k >= 6): %s", min_bandwidth)
     else:
         min_bandwidth = float(df_bandwidth['bandwith'].max())
-        print(f"[!] Warning: Safe bandwidth bound (k >= 6) unreached. Utilizing max fallback: {min_bandwidth}")
+        logger.warning("Safe bandwidth bound (k >= 6) unreached. Utilizing max fallback: %s", min_bandwidth)
 
     # Spatial graph generation block
     ## Package optimized neighbor configuration constraints for the spatial matrix
@@ -96,7 +100,7 @@ def run_liana_multimodal_pipeline(
         "key_added": base_conn_key
     }
 
-    print(f"[-] Computing spatial neighbors into modality '{x_mod}'].obsp['{expected_obsp_key}']...")
+    logger.info("Computing spatial neighbors into modality '%s'.obsp['%s']...", x_mod, expected_obsp_key)
     li.ut.spatial_neighbors(**neighbors_config)
 
     # Global tracking sync phase
@@ -128,16 +132,16 @@ def run_liana_multimodal_pipeline(
         'y_name': y_name
     }
 
-    print(f"[-] Computing bivariate association scores via '{local_name}'...")
+    logger.info("Computing bivariate association scores via '%s'...", local_name)
     bivariate_res = li.mt.bivariate(**bivariate_config)
 
     # Post-processing result mapping phase
     ## Route computed data tables back into the requested output modality workspace
     if bivariate_res is not None:
         mdata[output_modality_key].uns[liana_key] = bivariate_res
-        print(f"[✓] Local bivariate metrics mapped to mdata['{output_modality_key}'].uns['{liana_key}']")
+        logger.info("Local bivariate metrics successfully mapped to mdata['%s'].uns['%s']", output_modality_key, liana_key)
     else:
-        print("[!] Critical: Bivariate execution returned empty context framework.")
+        logger.error("Critical: Bivariate execution returned empty context framework asset.")
 
     ## Finalize data update sequences across all managed modules
     mdata.update()

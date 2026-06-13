@@ -5,6 +5,9 @@
 import mudata as mu
 import pandas as pd
 import omnipath as op
+from OmniPhysiBoSS.utils.logger import get_custom_logger
+
+logger = get_custom_logger(__name__)
 
 
 def fetch_liana_interactions(
@@ -64,15 +67,15 @@ def fetch_liana_interactions(
 
     # Database query phase
     ## Request the complete intercell annotation database from OmniPath web service clients
-    print("[-] Requesting comprehensive intercellular metadata network from OmniPath...")
+    logger.info("Requesting comprehensive intercellular metadata network from OmniPath.")
     omnipath_intercell_df = op.interactions.import_intercell_network()
 
     # Database key validation and fallback tracking
     if op_source_col not in omnipath_intercell_df.columns:
-        print(f"[!] Warning: Parametrized source '{op_source_col}' missing in OmniPath. Falling back to 'source'.")
+        logger.warning("Parametrized source column '%s' missing in OmniPath. Falling back to 'source'.", op_source_col)
         op_source_col = "source"
     if op_target_col not in omnipath_intercell_df.columns:
-        print(f"[!] Warning: Parametrized target '{op_target_col}' missing in OmniPath. Falling back to 'target'.")
+        logger.warning("Parametrized target column '%s' missing in OmniPath. Falling back to 'target'.", op_target_col)
         op_target_col = "target"
 
     omnipath_intercell_df["_op_source_join_key"] = omnipath_intercell_df[op_source_col].astype(str).str.upper()
@@ -80,6 +83,7 @@ def fetch_liana_interactions(
 
     # Core table reconciliation execution
     ## Merge full metadata attributes from OmniPath table into the existing LIANA row framework via left join
+    logger.debug("Executing database table reconciliation via left join mapping strategy.")
     merged_metadata_df = pd.merge(
         liana_var_df,
         omnipath_intercell_df,
@@ -104,6 +108,6 @@ def fetch_liana_interactions(
     # Unstructured global metadata slot registration
     ## Save the complete annotated data frame directly to the root container storage
     mdata.uns[output_uns_key] = merged_metadata_df.reset_index(drop=True)
-    print(f"[✓] Completed metadata attachment. Stored annotated dataframe under mdata.uns['{output_uns_key}'].")
+    logger.info("Completed metadata attachment. Stored annotated dataframe under mdata.uns['%s'].", output_uns_key)
 
     return mdata

@@ -1,14 +1,16 @@
-
 import mudata as mu
 from typing import List
 from .validate_unify_modalities_overlap_failure import validate_separated_modalities_overlap
+from OmniPhysiBoSS.utils.logger import get_custom_logger
+
+logger = get_custom_logger(__name__)
 
 # ==============================================================================
 # Data Harmonization Layer
 # ==============================================================================
 # TODO tests
 # check if mdata contains all needed dictonaries
-# check intersection functinnality very 
+# check intersection functionality very 
 
 
 def unify_multimodal_data(
@@ -30,13 +32,12 @@ def unify_multimodal_data(
     :rtype: mu.MuData
     """
     # Structural configuration and boundary checks
+    logger.info("Starting multimodal data harmonization matrix pipeline.")
     ## Validate that the requested omics layers list contains entries
     if not modalities:
         raise ValueError("The modalities list cannot be empty for alignment.")
 
-    print("=" * 80)
-    print("           MULTIMODAL DATA HARMONIZATION & DATA LOSS REPORT")
-    print("=" * 80)
+    logger.info("--- MULTIMODAL DATA HARMONIZATION & DATA LOSS REPORT ---")
 
     # Modality size profiling loop
     ## Record initial observation counts for every independent tracking layer
@@ -44,7 +45,7 @@ def unify_multimodal_data(
     for mod in modalities:
         if mod in mdata.mod:
             initial_sizes[mod] = mdata[mod].n_obs
-            print(f"[-] Modality Input Size  : '{mod}' contains initially {initial_sizes[mod]} cells.")
+            logger.info("Modality Input Size - Layer '%s': initially contains %s cells.", mod, initial_sizes[mod])
         else:
             raise KeyError(f"Requested modality '{mod}' not located in MuData object.")
 
@@ -56,35 +57,34 @@ def unify_multimodal_data(
     for mod in modalities[1:]:
         if mod in mdata.mod:
             shared_cells = shared_cells.intersection(mdata[mod].obs_names)
+            logger.debug("Calculated iterative intersection subset size after modality %s: %s", mod, len(shared_cells))
 
     shared_cells_list = list(shared_cells)
     final_count = len(shared_cells_list)
 
-
     # Data loss auditing block
     ## Compute exact data attrition metrics and retention percentages
-    print("[-] Data Retention Audit Trail:")
+    logger.info("Data Retention Audit Trail:")
     for mod in modalities:
         lost_cells = initial_sizes[mod] - final_count
         retention_pct = (final_count / initial_sizes[mod]) * 100
-        print(f"    -> Modality '{mod}': Retained {final_count}/{initial_sizes[mod]} cells "
-              f"({retention_pct:.2f}%). Lost {lost_cells} cells.")
-    print("=" * 80)
+        logger.info(" -> Modality '%s': Retained %s/%s cells (%s%%). Lost %s cells.", mod, final_count, initial_sizes[mod], f"{retention_pct:.2f}", lost_cells)
 
     if final_count == 0:
-        print(validate_separated_modalities_overlap(mdata, modalities))
+        logger.error("Strict intersection resulted in 0 shared cellular barcodes across specified layers.")
+        # Generujemy słownik diagnostyczny z walidatora i logujemy go w debugu
+        diag_report = validate_separated_modalities_overlap(mdata, modalities)
+        logger.debug("Intersection failure diagnostics report: %s", diag_report)
         raise RuntimeError("Strict intersection resulted in 0 shared cellular barcodes.")
     
-    # Logger: final count
-    print("-" * 80)
-    print(f"[✓] Harmonization Complete: {final_count} cells mutually shared across all layers.")
-    print("-" * 80)
+    logger.info("Harmonization Complete: %s cells mutually shared across all layers.", final_count)
 
     # Container slice and reconstruction phase
     ## Extract synchronized deep copies of independent sub-modules
     synchronized_modules = {}
     for mod in modalities:
         synchronized_modules[mod] = mdata[mod][shared_cells_list].copy()
+        logger.debug("Synchronized slice extracted for modality module: %s", mod)
 
     ## Reconstruct the unified multimodal array framework
     harmonized_mdata = mu.MuData(synchronized_modules)
@@ -102,13 +102,12 @@ def unify_multimodal_data(
         main_adata.obsm = {}
 
     ## Bind sub-modality tracking mappings directly to the root MuData structure
-    print(f"[-] Linking initialized main modality '{main_modality}' tracking maps to global root...")
+    logger.info("Linking main modality '%s' tracking dictionaries directly to global root references.", main_modality)
     harmonized_mdata.obsp = main_adata.obsp
     harmonized_mdata.uns = main_adata.uns
     harmonized_mdata.obsm = main_adata.obsm
-    print(f"[✓] Linking complete")
     
     ## Synchronize internal structure states globally
     harmonized_mdata.update()
+    logger.info("Global structural array updates synchronized.")
     return harmonized_mdata
-

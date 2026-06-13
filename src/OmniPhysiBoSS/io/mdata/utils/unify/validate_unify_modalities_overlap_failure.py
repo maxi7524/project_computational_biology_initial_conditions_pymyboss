@@ -1,5 +1,8 @@
 import mudata as mu
 from typing import List, Dict, Set, Any
+from OmniPhysiBoSS.utils.logger import get_custom_logger
+
+logger = get_custom_logger(__name__)
 
 def validate_separated_modalities_overlap(
     mdata: mu.MuData, 
@@ -17,6 +20,7 @@ def validate_separated_modalities_overlap(
     :rtype: dict
     """
     # Diagnostic initialization
+    logger.info("Starting intersection failure diagnosis for modalities.")
     ## Validate execution boundary conditions
     if len(modalities) < 2:
         raise ValueError("Diagnostics require at least 2 modalities to compute intersection shifts.")
@@ -36,6 +40,7 @@ def validate_separated_modalities_overlap(
         if mod in mdata.mod:
             mod_sets[mod] = set(mdata[mod].obs_names)
             report["independent_sizes"][mod] = len(mod_sets[mod])
+            logger.debug("Extracted cell set for modality: %s with size: %s", mod, len(mod_sets[mod]))
         else:
             raise KeyError(f"Modality '{mod}' missing from input MuData container.")
 
@@ -46,10 +51,12 @@ def validate_separated_modalities_overlap(
             overlap_set = mod_sets[mod_a].intersection(mod_sets[mod_b])
             pair_key = f"{mod_a}<->{mod_b}"
             report["pairwise_overlaps"][pair_key] = len(overlap_set)
+            logger.debug("Computed pairwise overlap for %s: %s cells", pair_key, len(overlap_set))
             
             ### Detect absolute decoupling between two layers
             if len(overlap_set) == 0:
-                print(f"[!] Critical Decoupling: Pairs '{mod_a}' and '{mod_b}' share 0 overlapping cells.")
+                logger.error("Critical Decoupling: Pairs %s and %s share 0 overlapping cells.", mod_a, mod_b)
+                # print(f"[!] Critical Decoupling: Pairs '{mod_a}' and '{mod_b}' share 0 overlapping cells.")
 
     # Higher-order structural leave-one-out isolation audit
     for target_mod in modalities:
@@ -67,6 +74,8 @@ def validate_separated_modalities_overlap(
         if len(global_intersection) == 0 and len(partial_intersection) > 0:
             ### The target layer is identified as the singular bottleneck driving global overlap to zero
             report["completely_isolated_modalities"].append(target_mod)
-            print(f"[!] Intersection Bottleneck: Modality '{target_mod}' isolates the global union framework.")
+            logger.error("Intersection Bottleneck: Modality %s isolates the global union framework.", target_mod)
+            # print(f"[!] Intersection Bottleneck: Modality '{target_mod}' isolates the global union framework.")
 
+    logger.info("Intersection failure diagnosis processing complete.")
     return report

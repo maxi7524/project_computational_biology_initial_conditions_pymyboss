@@ -5,6 +5,10 @@
 import mudata as mu
 from typing import Dict, List, Any
 
+from OmniPhysiBoSS.utils.logger import get_custom_logger
+
+logger = get_custom_logger(__name__)
+
 
 def verify_structural_presence(
     mdata: mu.MuData, 
@@ -28,6 +32,7 @@ def verify_structural_presence(
     :rtype: List[str]
     """
     # Error aggregation initialization
+    logger.info("Starting structural presence validation checking sequence.")
     errors: List[str] = []
 
     # Modality registry presence validation loop
@@ -38,12 +43,15 @@ def verify_structural_presence(
 
         ## Resolve runtime structural names from the mapping definition
         mapped_layer = mappings.get(base_layer, base_layer)
+        logger.debug("Validating layout structure rules for base layer: %s (mapped as: %s)", base_layer, mapped_layer)
 
         ## Only validate if this schema layer is part of the requested pipeline modalities
         if mapped_layer in modalities:
             if mapped_layer not in mdata.mod:
                 ### Register failure if a requested modality is missing from the container
-                errors.append(f"Mandatory multi-modal layer registry slot missing: '{mapped_layer}'")
+                err_msg = f"Mandatory multi-modal layer registry slot missing: '{mapped_layer}'"
+                errors.append(err_msg)
+                logger.error("Validation error registered: %s", err_msg)
                 continue
 
             # Nested structural slot validation phase
@@ -52,10 +60,13 @@ def verify_structural_presence(
                 mapped_key = mappings.get(required_key, required_key)
                 
                 if not hasattr(layer_object, mapped_key) and mapped_key not in getattr(layer_object, "keys", lambda: [])():
-                    errors.append(f"Modality '{mapped_layer}' is missing target reference component slot: '{mapped_key}'")
+                    err_msg = f"Modality '{mapped_layer}' is missing target reference component slot: '{mapped_key}'"
+                    errors.append(err_msg)
+                    logger.error("Validation slot error registered: %s", err_msg)
 
     # Root observation columns validation branch
     if "obs" in schema:
+        logger.debug("Scanning schema observation collection boundaries.")
         ## Scan global tracking observation dataframe and local modality dataframes for structural columns
         for col in schema["obs"]:
             ### Resolve missing global keys by checking fallback columns inside active child modalities
@@ -63,6 +74,9 @@ def verify_structural_presence(
             in_local = any(col in mdata.mod[m].obs.columns for m in modalities if m in mdata.mod)
             
             if not (in_global or in_local):
-                errors.append(f"Mandatory global or local observation data column missing: '{col}'")
+                err_msg = f"Mandatory global or local observation data column missing: '{col}'"
+                errors.append(err_msg)
+                logger.error("Validation observation column error registered: %s", err_msg)
 
+    logger.info("Structural presence validation complete. Total verification errors encountered: %s", len(errors))
     return errors

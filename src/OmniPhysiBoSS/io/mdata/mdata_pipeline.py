@@ -14,6 +14,10 @@ from .utils.spatial.liana_multimodal_pipeline import run_liana_multimodal_pipeli
 from .utils.validate.mdata_validator import verify_structural_presence
 from .utils.validate.mdata_types import OMNI_PHYSIBOSS_SCHEMA
 
+from OmniPhysiBoSS.utils.logger import get_custom_logger
+
+logger = get_custom_logger(__name__)
+
 
 def run_mdata_processing_pipeline(
     mdata: mu.MuData,
@@ -51,20 +55,22 @@ def run_mdata_processing_pipeline(
     :rtype: mu.MuData
     :raises KeyError: If mandatory validation boundaries or configuration parameters are violated.
     """
-
     # Pipeline initialization and structural remapping phase
+    logger.info("Starting multi-modal processing pipeline orchestration.")
+    
     ## Resolve custom input name mappings to enforce strict global schema consistency
     if key_mappings:
         for custom_key, canonical_key in key_mappings.items():
             if custom_key in mdata.mod and custom_key != canonical_key:
                 ### Transfer ownership of the modality object to the canonical schema name slot
                 mdata.mod[canonical_key] = mdata.mod.pop(custom_key)
-                print(f"[-] Remapped custom modality alias '{custom_key}' to canonical schema key '{canonical_key}'.")
+                logger.debug("Remapped custom modality alias: %s to canonical schema key: %s", custom_key, canonical_key)
 
     # Modality list resolution step
     ## If explicit modalities list is omitted, derive targets from the container keys
     if not modalities:
         modalities = list(mdata.mod.keys())
+        logger.debug("Derived active modalities list from container keys: %s", modalities)
 
     # TODO - does not work properly 
     # # Data integrity validation phase
@@ -77,7 +83,7 @@ def run_mdata_processing_pipeline(
     
     # Mathematical join alignment phase
     ## Execute the inner join operation to synchronize cellular observation tracking indexes
-    print("[-] Initiating multimodal data harmonization across omics layers...")
+    logger.info("Initiating multimodal data harmonization across omics layers.")
     harmonized_mdata = unify_multimodal_data(
         mdata=mdata,
         modalities=modalities,
@@ -88,16 +94,18 @@ def run_mdata_processing_pipeline(
     ## Compute localized intercellular communication weights and assign results
     ### choose mouse or human resourse 
     resource_name = 'mouseconsensus' if specie == 'mouse' else 'consensus'
+    logger.info("Executing spatial neighborhood cross-correlation metrics using resource: %s", resource_name)
     harmonized_mdata = run_liana_multimodal_pipeline(
         mdata=harmonized_mdata,
         x_mod=main_modality,
         y_mod=main_modality,
         output_modality_key=main_modality,
         liana_key=liana_uns_key,
-
     )
+    
     # Intracellular reference acquisition phase
     ## Fetch and annotate signed directed intracellular signaling graphs from OmniPath clients
+    logger.info("Fetching directed intracellular signaling graphs from OmniPath.")
     harmonized_mdata = fetch_intracellular_pathway_network(
         mdata=harmonized_mdata,
         output_key=intracellular_output_key
@@ -105,6 +113,7 @@ def run_mdata_processing_pipeline(
 
     # Intercellular metadata compilation phase
     ## Merge spatial information with external communication receptor-ligand annotations
+    logger.info("Compiling intercellular metadata with OmniPath intercell annotations.")
     harmonized_mdata = fetch_liana_interactions(
         mdata=harmonized_mdata,
         liana_uns_key=liana_uns_key,
@@ -113,7 +122,8 @@ def run_mdata_processing_pipeline(
 
     # Global synchronization execution
     ## Refresh internal structural coordinates across all child modalities
+    logger.info("Refreshing internal structural coordinates globally.")
     harmonized_mdata.update()
-    print("[✓] Multi-modal processing pipeline completed successfully.")
+    logger.info("Multi-modal processing pipeline completed successfully.")
 
     return harmonized_mdata

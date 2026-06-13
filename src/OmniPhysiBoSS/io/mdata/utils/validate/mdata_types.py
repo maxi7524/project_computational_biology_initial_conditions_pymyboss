@@ -3,6 +3,9 @@
 # =============================================================================
 
 from typing import Dict, List
+from OmniPhysiBoSS.utils.logger import get_custom_logger
+
+logger = get_custom_logger(__name__)
 
 # Global hardcoded structure schema requirements
 ## Maps standard functional pipeline keys to their required sub-slots

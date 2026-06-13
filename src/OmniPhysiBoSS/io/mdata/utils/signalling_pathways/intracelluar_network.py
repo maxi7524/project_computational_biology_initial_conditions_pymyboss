@@ -6,6 +6,9 @@ import mudata as mu
 import pandas as pd
 import omnipath as op
 from typing import List, Optional
+from OmniPhysiBoSS.utils.logger import get_custom_logger
+
+logger = get_custom_logger(__name__)
 
 
 def fetch_intracellular_pathway_network(
@@ -27,7 +30,7 @@ def fetch_intracellular_pathway_network(
     """
     # Remote database acquisition phase
     ## Pull curated kinase/phosphatase and transcriptional pathways from server
-    print("[-] Requesting intracellular interaction pathways from OmniPath...")
+    logger.info("Requesting intracellular interaction pathways from OmniPath using resources: %s", resources)
     raw_network = op.interactions.AllInteractions.get(
         resources=resources
     )
@@ -53,10 +56,11 @@ def fetch_intracellular_pathway_network(
     filtered_network = processing_df[processing_df["sign"] != 0].copy()
     final_edgelist = filtered_network[["source", "target", "sign"]].dropna()
     final_edgelist = final_edgelist.drop_duplicates().reset_index(drop=True)
+    logger.debug("Filtered network compiled. Rows retained: %s", final_edgelist.shape[0])
 
     # Persistence operation
     ## Bind the resulting structural interaction dataframe into unstructured metadata
     mdata.uns[output_key] = final_edgelist
-    print(f"[✓] Stored intracellular network under uns['{output_key}']. Total edges: {final_edgelist.shape[0]}")
+    logger.info("Stored intracellular network under uns['%s']. Total edges: %s", output_key, final_edgelist.shape[0])
 
     return mdata
