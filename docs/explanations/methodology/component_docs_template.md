@@ -106,5 +106,3 @@ $$\mu_C = \frac{1}{|C|} \sum_{i \in C} y_i$$
 #TODO: Step-by-step implementation execution logic.
 
 ```
-
-```

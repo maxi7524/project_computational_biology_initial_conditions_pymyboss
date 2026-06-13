@@ -1,6 +1,3 @@
-
-
-
 # Methodology overview
 
 This document formalizes the multiscale theoretical frameworks, modeling assumptions, and mathematical abstractions implemented across the **OmniPhysiBoSS** environment.
