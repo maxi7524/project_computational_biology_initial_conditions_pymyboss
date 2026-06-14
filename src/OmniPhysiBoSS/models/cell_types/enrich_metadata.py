@@ -1,5 +1,5 @@
 # Heading 1 (Broad context / Top-level block / Script section)
-# Quantitative functional metadata enrichment and ontologized gene parameter mining engine.
+# Robust functional metadata enrichment engine with direct database ontology cross-references.
 
 import os
 from typing import Dict, Any, List, Set
@@ -9,30 +9,51 @@ import pronto
 
 from ...utils.logger import get_custom_logger
 
+
 logger = get_custom_logger(__name__)
 
 class CellTypeMetadataEnricher:
     """
-    Processes discrete lineage registries to extract functional annotations, 
-    resolve Cell Ontology terms using pronto, and compile unified parameter frames.
+    Processes flattened biological lineage registries to discover linked Gene Ontology 
+    terms by anchoring lookups directly on verified unique cellontology_id keys.
     """
+
+    def _normalize_cell_name(self, name: str) -> str:
+        """
+        Normalize cell type strings to maximize singular-form OBO matching hits.
+
+        :param name: Raw cell name string.
+        :type name: str
+        :return: Normalized cell name string.
+        :rtype: str
+        """
+        # Heading 1 (Broad context / Top-level block / Script section)
+        # Text canonicalization transformation workflows
+        ## Heading 2 (Specific operation / Sub-step inside a loop or function / Secondary logic)
+        ## Strip plural trailing characters and lower-case tokens
+        
+        norm = name.lower().strip()
+        norm = norm.replace("cells", "").replace("cell", "").strip()
+        if norm == "nk":
+            return "natural killer"
+        return norm
 
     def enrich_metadata_dataframe(
         self, 
         mdata: mu.MuData, 
-        lineage_registry: Dict[str, Any], 
-        cl_ontology_path: str,
+        flat_lineage_registry: Dict[str, Any], 
+        cl_ontology_path: str = 'resources/databases/go-basic.obo',
         uns_output_key: str = "cell_types_metadata_df"
     ) -> None:
         """
-        Query structural Cell Ontologies to extract absolute CL identifiers and 
-        associated GO terms, injecting the resulting dataframe into mdata.uns.
+        Query the Gene Ontology structure by mapping the explicit cellontology_id 
+        to discover linked GO terms, injecting the resulting dataframe into mdata.uns.
 
         :param mdata: Integrated multi-modal omics storage asset.
         :type mdata: mu.MuData
-        :param lineage_registry: Structured extraction dictionary derived from cell type strategies.
-        :type lineage_registry: Dict[str, Any]
-        :param cl_ontology_path: Filesystem trajectory or remote URL pointing to the target cl.obo file.
+        :param flat_lineage_registry: Streamlined extraction dictionary containing flattened cluster annotations.
+        :type flat_lineage_registry: Dict[str, Any]
+        :param cl_ontology_path: Filesystem trajectory pointing to the target go-basic.obo file.
         :type cl_ontology_path: str
         :param uns_output_key: Objective matrix identifier key within the mdata.uns dictionary.
         :type uns_output_key: str
@@ -41,103 +62,117 @@ class CellTypeMetadataEnricher:
         """
         # Heading 1 (Broad context / Top-level block / Script section)
         # Structural data schema validation and ontology ingestion
-        logger.info("Starting structural Cell Ontology parsing via pronto interface.")
+        
+        logger.info("Starting structural Gene Ontology parsing via pronto interface.")
         
         if 'rna' not in mdata.mod:
-            logger.error("Enrichment workflow aborted. Modality layer 'rna' missing from path context.", exc_info=True)
+            logger.error("Enrichment workflow aborted. Modality layer 'rna' missing from path context.", exc_info=True) 
             raise KeyError("Missing 'rna' modality container inside MuData object.")
 
-        if not cl_ontology_path.startswith("http") and not os.path.exists(cl_ontology_path):
-            logger.error("Target OBO ontology file missing at designated tracker path: %s", cl_ontology_path, exc_info=True)
+        if not os.path.exists(cl_ontology_path):
+            logger.error("Target ontology file missing at path: %s", cl_ontology_path, exc_info=True) 
             raise FileNotFoundError(f"Ontology file tracking reference not found: {cl_ontology_path}")
 
         ## Load and parse the structured OBO graph layout safely
+        
         logger.debug("Loading ontology graph definitions from source trajectory: %s", cl_ontology_path)
         cl_ontology = pronto.Ontology(cl_ontology_path)
+        logger.info("Ontology loaded successfully. Total terms parsed: %d", len(cl_ontology))
         
         dataframe_records: List[Dict[str, Any]] = []
 
         ## Heading 2 (Specific operation / Sub-step inside a loop or function / Secondary logic)
-        ## Iterate over registry entries to perform term matching transformations
-        for cluster_id, attributes in lineage_registry.items():
-            ref_data = attributes["database_reference"]
-            cell_type_name = str(ref_data["identifier"])
+        ## Iterate over flattened entries to perform exact ontology term transformations
+        for cluster_id, attributes in flat_lineage_registry.items():
+            cell_type_name = str(attributes["cell_type_name"])
             cell_count = int(attributes["cell_count"])
+            explicit_cl_id = str(attributes["cellontology_id"])
+            meta_context = attributes.get("metadata_context", {})
+            confidence_score = float(attributes.get("confidence_score", 1.0))
             
-            logger.info("Cluster - cluster %s: Mining ontological structures for identified cell type label: %s", str(cluster_id), cell_type_name)
-
-            # Execution fallback constants allocation
-            matched_cl_id = "CL:UNKNOWN"
+            matched_cl_id = explicit_cl_id if explicit_cl_id != "NaN" else "CL:UNKNOWN"
             matched_definition = "No ontology definition available."
             associated_go_terms: Set[str] = set()
 
-            ## Heading 2 (Specific operation / Sub-step inside a loop or function / Secondary logic)
-            ## Scan parsed ontology terms to match the target string label
-            cleaned_query = cell_type_name.lower().strip()
-            
-            for term in cl_ontology.terms():
-                if not term.name:
-                    continue
+            ### Heading 3 (Deep sub-step / Conditional branch / Granular execution detail)
+            ### Scan entire Gene Ontology database to isolate terms linked to target cellontology_id
+            if explicit_cl_id and explicit_cl_id not in ["NaN", "CL:UNKNOWN"]:
+                logger.info("Cluster %s: Scanning GO structures for explicit cellontology_id: %s", str(cluster_id), explicit_cl_id)
+                
+                for term in cl_ontology.terms():
+                    is_linked = False
                     
-                ### Heading 3 (Deep sub-step / Conditional branch / Granular execution detail)
-                ### Inspect both main terminology handles and nested synonym strings
-                is_match = False
-                if term.name.lower() == cleaned_query:
-                    is_match = True
-                elif term.synonyms:
-                    for synonym in term.synonyms:
-                        if synonym.description and synonym.description.lower() == cleaned_query:
-                            is_match = True
-                            break
-
-                if is_match:
-                    ### Heading 3 (Deep sub-step / Conditional branch / Granular execution detail)
-                    ### Isolate identification trackers and definition properties on match
-                    matched_cl_id = term.id
-                    if term.definition:
-                        matched_definition = str(term.definition)
-
-                    # Extract cross-references explicitly pointing to Gene Ontology blocks
+                    # Inspect cross-references for the target Cell Ontology identifier
+                    
                     if term.xrefs:
                         for xref in term.xrefs:
-                            if xref.id.startswith("GO:"):
-                                associated_go_terms.add(xref.id)
-
-                    # Interrogate graph relationships to harvest functional GO predicates
-                    if term.relationships:
-                        for rel_type, related_terms in term.relationships.items():
+                            if explicit_cl_id in xref.id:
+                                is_linked = True
+                                break
+                                
+                    # Inspect relationship blocks for mapped graph connections
+                    
+                    if not is_linked and term.relationships:
+                        for rel, related_terms in term.relationships.items():
                             for rel_term in related_terms:
-                                if rel_term.id.startswith("GO:"):
-                                    associated_go_terms.add(rel_term.id)
-                    break
+                                if rel_term.id == explicit_cl_id:
+                                    is_linked = True
+                                    break
+                            if is_linked:
+                                break
+                                
+                    if is_linked and "GO:" in term.id:
+                        associated_go_terms.add(term.id)
 
             ### Heading 3 (Deep sub-step / Conditional branch / Granular execution detail)
-            ### Format the compiled terms into a flat string sequence for storage
-            go_terms_payload = ",".join(sorted(list(associated_go_terms)))
-            logger.debug("Cluster %s mapped to identifier %s with %d linked GO terms.", str(cluster_id), matched_cl_id, len(associated_go_terms))
+            ### Execute fallback string normalization query if no direct GO relationships are found
+            if not associated_go_terms:
+                query = self._normalize_cell_name(cell_type_name)
+                logger.debug("Executing name fallback string matching for query: %s", query)
+                
+                for term in cl_ontology.terms():
+                    if not term.name:
+                        continue
+                    
+                    term_name_norm = term.name.lower().replace("cell", "").strip() 
+                    is_match = (query == term_name_norm) or (query in term_name_norm and len(query) > 3) 
 
-            # Append the completed data record to the dataframe array
+                    if is_match and "GO:" in term.id:
+                        associated_go_terms.add(term.id)
+                        if term.definition:
+                            matched_definition = str(term.definition) 
+
+            go_terms_payload = ",".join(sorted(list(associated_go_terms))) if associated_go_terms else "None" 
+            
+            ## Heading 2 (Specific operation / Sub-step inside a loop or function / Secondary logic)
+            ## Compile full context parameters from both CellMarker 2.0 layers and pronto records
             record = {
                 "cluster_id": str(cluster_id),
                 "cell_type_name": cell_type_name,
                 "cell_count": cell_count,
                 "cell_ontology_id": matched_cl_id,
+                "uberon_ontology_id": str(meta_context.get("uberonontology_id", "NaN")), 
+                "tissue_class": str(meta_context.get("tissue_class", "NaN")), 
+                "tissue_type": str(meta_context.get("tissue_type", "NaN")), 
+                "cancer_type": str(meta_context.get("cancer_type", "NaN")), 
+                "marker_source": str(meta_context.get("marker_source", "NaN")), 
+                "pmid": str(meta_context.get("pmid", "NaN")), 
                 "ontology_definition": matched_definition,
                 "associated_go_annotations": go_terms_payload,
-                "source_database": str(ref_data["source"]),
-                "confidence_score": float(ref_data.get("confidence_score", 1.0))
+                "source_database": "CellMarker2.0_Direct_Ontology_Resolution",
+                "confidence_score": confidence_score
             }
             dataframe_records.append(record)
 
         ## Heading 2 (Specific operation / Sub-step inside a loop or function / Secondary logic)
-        ## Construct the target pandas dataframe and link it to root dictionary metadata slots
-        logger.info("Compiling and structuring cell types metadata dataframe array layers.")
+        ## Construct the target pandas dataframe and link to multi-modal object space
+        
         metadata_df = pd.DataFrame(dataframe_records)
         metadata_df.set_index("cluster_id", inplace=True)
 
         if not isinstance(mdata.uns, dict):
-            mdata.uns = dict(mdata.uns)
+            mdata.uns = dict(mdata.uns) 
 
         mdata.uns[uns_output_key] = metadata_df
-        mdata.update()
-        logger.info("Successfully synchronized enriched metadata under mdata.uns['%s'] key.", uns_output_key)
+        mdata.update() 
+        logger.info("Metadata registration payload injected into mdata.uns['%s'] slot completed.", uns_output_key) 
