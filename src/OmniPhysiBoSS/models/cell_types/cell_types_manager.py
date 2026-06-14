@@ -5,7 +5,7 @@ from typing import Dict, Any, Type
 import mudata as mu
 
 from OmniPhysiBoSS.utils.logger import get_custom_logger
-from OmniPhysiBoSS.models.cell_types.cell_types_base import BaseCellTypeExtractor
+from OmniPhysiBoSS.models.cell_types.strategies.cell_types_base import BaseCellTypeExtractor
 
 logger = get_custom_logger(__name__)
 

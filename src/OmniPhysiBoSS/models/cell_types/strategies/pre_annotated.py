@@ -4,7 +4,7 @@
 from typing import Dict, Any, List
 import mudata as mu
 
-from ..cell_types_base import BaseCellTypeExtractor
+from .cell_types_base import BaseCellTypeExtractor
 from ....utils.logger import get_custom_logger
 
 logger = get_custom_logger(__name__)

@@ -52,9 +52,9 @@ The primary objective of OmniPhysiBoSS is to orchestrate intercellular and intra
 
 For detailed guidelines, implementation details, and theoretical background, navigate to the respective documentation sections below:
 
-- **[Modules](./resources/docs/explanations/modules/README.md)**: Contains a comprehensive technical description of the implemented library modules. It explains the architectural design, internal code construction, and provides explicit instructions on how to modify or extend the codebase.
-- **[I/O Formats](./resources/docs/explanations/io_formats/README.md)**: Serves as a developer-focused reference for debugging and system configuration. It specifies exact specifications for input and output data structures, detailing the files involved in the analysis pipeline (including parsing mechanisms, schema definitions, and expected formats).
-- **[Methodology](./resources/docs/explanations/methodology/README.md)**: Combines the formal theoretical foundation of the problem with a detailed rationale behind our specific implementation. It explains the mathematical or biological modeling abstractions selected and justifies the algorithmic execution flow.
+- **[Modules](./docs/explanations/modules/README.md)**: Contains a comprehensive technical description of the implemented library modules. It explains the architectural design, internal code construction, and provides explicit instructions on how to modify or extend the codebase.
+- **[I/O Formats](./docs/explanations/io_formats/README.md)**: Serves as a developer-focused reference for debugging and system configuration. It specifies exact specifications for input and output data structures, detailing the files involved in the analysis pipeline (including parsing mechanisms, schema definitions, and expected formats).
+- **[Methodology](./docs/explanations/methodology/README.md)**: Combines the formal theoretical foundation of the problem with a detailed rationale behind our specific implementation. It explains the mathematical or biological modeling abstractions selected and justifies the algorithmic execution flow.
 
 ## Installation & usage
 
@@ -85,18 +85,35 @@ pip install -e .
 
 # activation of new environment
 micromamba activate OmniPhysiBoss_env 
-
-# run script that clone OmniPhysiBoSS repository and sets it checked version
-python resources/scripts/utils/install_OmniPhysiBoSS.py
 ```
-
-> REMARK - everyone: Do not clone OmniPhysiBoSS separately. If commits would change critical paths (f.e. compilation files) whole script will broke. 
 
 > REMARK - developer: If you want to change repository i advice you to install addiotnal dependencies:
 > ```bash
 > pip install -e .[docs]
 > ```
 >
+
+Then you need to install PhysiCell offical repository and link it. Script below does it automatically from my forked repository to ensure version compatibility.
+
+```bash
+# run script that clone OmniPhysiBoSS repository and sets it checked version
+# REMARK: it takes around ~ 1-2gb of memory 
+# REMARK: do not move this file, it searches repo clone base on its position in repository folder.  
+python resources/scripts/utils/install_OmniPhysiBoSS.py
+```
+
+> REMARK - everyone: Do not clone OmniPhysiBoSS separately. If commits would change critical paths (f.e. compilation files) whole script will broke. 
+
+To be able to perform analysis you also need to download [panglaoDB markbers database](https://panglaodb.se/index.html), and [go-basic database](https://geneontology.org/docs/download-ontology/) . You can use scripts below. It will automatically move it to `resources/databases` folder. 
+
+```bash
+# panglaoDB markbers database
+bash resources/scripts/download/download_panglaoDB.sh 
+# go-basic database
+bash bash resources/scripts/download/download_go-basicDB.sh 
+```
+
+
 
 ### Resource Requirements & Deployment Timeline
 The installation requires **3.1 – 3.7 GB** of disk space and takes approximately **13 – 25 minutes** to complete, depending on your network speed and CPU performance.

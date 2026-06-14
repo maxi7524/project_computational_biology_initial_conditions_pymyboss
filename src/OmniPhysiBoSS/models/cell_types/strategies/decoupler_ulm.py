@@ -5,7 +5,7 @@ from typing import Dict, Any, Set
 import mudata as mu
 import decoupler as dc
 
-from ..cell_types_base import BaseCellTypeExtractor
+from .cell_types_base import BaseCellTypeExtractor
 from ....utils.logger import get_custom_logger
 
 logger = get_custom_logger(__name__)
