@@ -4,6 +4,7 @@
 
 import mudata as mu
 from typing import Dict, List, Optional, Literal
+import warnings
 
 # Structural package imports for pipeline stage execution
 from .utils.unify.unify_modalities import unify_multimodal_data
@@ -14,6 +15,7 @@ from .utils.spatial.liana_multimodal_pipeline import run_liana_multimodal_pipeli
 from .utils.validate.mdata_validator import verify_structural_presence
 from .utils.validate.mdata_types import OMNI_PHYSIBOSS_SCHEMA
 from .utils.common import safe_synchronize_mudata_layers
+from .utils.clustering import compute_leiden_partitions
 
 from OmniPhysiBoSS.utils.logger import get_custom_logger
 
@@ -22,14 +24,10 @@ logger = get_custom_logger(__name__)
 
 # Global configuration and warning management
 ## Suppress future compatibility warnings from the MuData library
-import warnings
 warnings.filterwarnings("ignore", category=FutureWarning, module="mudata")
 
 ## Enforce safe library behavior by disabling pull_on_update
-import mudata as mu
 mu.set_options(pull_on_update=False)
-
-
 
 
 def run_mdata_processing_pipeline(
@@ -42,7 +40,12 @@ def run_mdata_processing_pipeline(
     intercell_output_key: str = "intercellular_metadata_df",
     intracellular_output_key: str = "intracellular_metadata_df",
     intracellular_resources: Optional[List[str]] = None,
-    intracellular_datasets: Optional[List[str]] = None
+    intracellular_datasets: Optional[List[str]] = None,
+    leiden_resolution: float = 1.0,
+    target_cluster_key: str = "leiden",
+    n_neighbors: int = 15,
+    clustering_batch_key: Optional[str] = None,
+    force_clustering_recompute: bool = False
 ) -> mu.MuData:
     """
     Execute the complete orchestration pipeline for multi-modal data preparation.
@@ -62,14 +65,24 @@ def run_mdata_processing_pipeline(
     :type main_modality: str
     :param liana_uns_key: Source dictionary key containing LIANA results inside the modality, defaults to "liana_res".
     :type liana_uns_key: str
-    :param intercell_output_key: Destination root .uns key for intercellular metadata, defaults to "intercellular_metadata_registry".
+    :param intercell_output_key: Destination root .uns key for intercellular metadata, defaults to "intercellular_metadata_df".
     :type intercell_output_key: str
-    :param intracellular_output_key: Destination root .uns key for intracellular network edgelist, defaults to "omnipath_intracellular".
+    :param intracellular_output_key: Destination root .uns key for intracellular network edgelist, defaults to "intracellular_metadata_df".
     :type intracellular_output_key: str
     :param intracellular_resources: Filter registries for OmniPath intracellular network, defaults to None.
     :type intracellular_resources: Optional[List[str]]
     :param intracellular_datasets: Broad database datasets selection for OmniPath signaling, defaults to None.
     :type intracellular_datasets: Optional[List[str]]
+    :param leiden_resolution: Resolution parameter for the Leiden community detection algorithm, defaults to 1.0.
+    :type leiden_resolution: float
+    :param target_cluster_key: Key under which clustering results are stored in .obs, defaults to "leiden".
+    :type target_cluster_key: str
+    :param n_neighbors: Size of the local neighborhood for manifold graph construction, defaults to 15.
+    :type n_neighbors: int
+    :param clustering_batch_key: Key in .obs containing batch information for correction, defaults to None.
+    :type clustering_batch_key: Optional[str]
+    :param force_clustering_recompute: Force recomputation of neighbors and partitions if True, defaults to False.
+    :type force_clustering_recompute: bool
     :return: Dimensionally aligned and network-annotated MuData container.
     :rtype: mu.MuData
     :raises KeyError: If mandatory validation boundaries or configuration parameters are violated.
@@ -139,6 +152,24 @@ def run_mdata_processing_pipeline(
         liana_uns_key=liana_uns_key,
         output_uns_key=intercell_output_key
     )
+
+    # Graph partitioning and community detection phase
+    ## Partition the neighborhood graph into discrete clusters using the Leiden algorithm
+    logger.info(
+        "Triggering Leiden graph partitioning loop. Resolution: %s, Target key: %s, Neighbors: %s", 
+        leiden_resolution, 
+        target_cluster_key, 
+        n_neighbors
+    )
+    compute_leiden_partitions(
+        mdata=synchronized_mdata,
+        resolution=leiden_resolution,
+        target_cluster_key=target_cluster_key,
+        n_neighbors=n_neighbors,
+        batch_key=clustering_batch_key,
+        force_recompute=force_clustering_recompute
+    )
+    logger.info("Leiden graph partitioning completed. Clusters saved under key: %s", target_cluster_key)
 
     # Global synchronization execution
     ## Refresh internal structural coordinates across all child modalities
