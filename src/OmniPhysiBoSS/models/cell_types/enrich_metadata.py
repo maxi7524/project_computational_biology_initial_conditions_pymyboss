@@ -64,7 +64,7 @@ class CellTypeMetadataEnricher:
             cell_type_name = str(ref_data["identifier"])
             cell_count = int(attributes["cell_count"])
             
-            logger.info("Mining ontological structures for identified cell type label: %s", cell_type_name)
+            logger.info("Cluster - cluster %s: Mining ontological structures for identified cell type label: %s", str(cluster_id), cell_type_name)
 
             # Execution fallback constants allocation
             matched_cl_id = "CL:UNKNOWN"

@@ -96,7 +96,7 @@ def compute_leiden_partitions(
 
     ### PCA visualization
     logger.info("Generating PCA plot")
-    sc.pl.pca(rna_adata)
+    sc.pl.pca(rna_adata, return_fig=False)
 
     # Synchronize multimodal structural links across container arrays
     safe_synchronize_mudata_layers(mdata, True, True)

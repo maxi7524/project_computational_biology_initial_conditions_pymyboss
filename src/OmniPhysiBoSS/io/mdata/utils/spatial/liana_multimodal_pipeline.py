@@ -15,16 +15,18 @@ logger = get_custom_logger(__name__)
 # Main functional cross-correlation pipeline interface
 def run_liana_multimodal_pipeline(
     mdata: mu.MuData,
+    resource_name: str = "mouseconsensus",
     x_mod: str = "rna",
     y_mod: str = "rna",
+    x_name: str = "ligand",
+    y_name: str = "receptor",
     output_modality_key: str = "rna",
-    resource_name: str = "mouseconsensus",
     connectivity_key: str = "spatial_connectivities",
     liana_key: str = "liana_res",
     local_name: str = "cosine",
+    global_name: str = 'morans',
+    n_perms: int = 10,
     seed: int = 1337,
-    x_name: str = "ligand",
-    y_name: str = "receptor"
 ) -> mu.MuData:
     """
     Executes spatial neighbor graphs and customizable bivariate cross-correlation
@@ -123,10 +125,10 @@ def run_liana_multimodal_pipeline(
         'y_mod': y_mod,
         'local_name': local_name,
         # TODO experiment - for finding if spatial positions are important
-        'global_name': 'morans',
+        'global_name': global_name,
         'resource_name': resource_name,
         # TODO experiment - for finding randomness of certain signals (permutation tests)
-        'n_perms': 1_000,
+        'n_perms': n_perms,
         # 'n_perms': None,
         # TODO experimental 
         'add_categories': True,
