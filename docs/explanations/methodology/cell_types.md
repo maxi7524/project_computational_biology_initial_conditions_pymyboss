@@ -103,6 +103,8 @@ When raw input datasets do not contain pre-existing labels, this strategy applie
 
 #### Detailed Algorithmic Implementation
 
+#TODO - doprecyozować to 
+
 1. **Step 1 (Community Detection)**: Apply the Louvain or Leiden clustering algorithm to the transcriptomic adjacency matrix $A$ to maximize graph modularity $Q$, splitting the cells into $K$ unannotated clusters.
 2. **Step 2 (Cluster Size Configuration & Optimization)**: The total cluster count $K$ is controlled via the configuration parameters. The framework supports two operational tracking modes:
    * **Manual Resolution**: A fixed resolution multiplier or target cluster count specified directly in the configuration file.
@@ -110,7 +112,11 @@ When raw input datasets do not contain pre-existing labels, this strategy applie
 
 $$Q = \frac{1}{2m} \sum_{ij} \left( A_{ij} - \frac{k_i k_j}{2m} \right) \delta(C_i, C_j)$$
 
-1. **Step 3 (Differential Expression Evaluation)**: For each resolved cluster $C_k$, compute the mean expression vector $\bar{y}_k \in \mathbb{R}^G$ and extract the top ranking overexpressed genes compared to background populations.
+#TODO - doprecyzoweać - własnie to robimy 
+
+4. **Step 3 (Differential Expression Evaluation)**: For each resolved cluster $C_k$, compute the mean expression vector $\bar{y}_k \in \mathbb{R}^G$ and extract the top ranking overexpressed genes compared to background populations.
+
+
 2. **Step 4 (Database Reference Alignment)**: Cross-reference the discovered marker gene sets against **PanglaoDB** or **CellMarker** matrices using a cosine similarity score or hypergeometric enrichment test:
 
 $$\text{Score}(k, l) = \frac{\bar{y}_k \cdot R_l}{\|\bar{y}_k\|_2 \|R_l\|_2}$$
@@ -170,31 +176,6 @@ In targeted, image-based *in situ* spatial transcriptomics platforms (e.g., 10x 
 ---
 
 ## Discussion
-
-### Overcorrection and the Spatial Safety Check
-
-When integrating single-cell or spatial transcriptomics datasets across multiple technical batches or replicates ($s \in S$), a critical trade-off emerges between removing technical variance and preserving true biological architecture. The inclusion of an optional `batch_key` enables alignment algorithms like Batch Balanced K-Nearest Neighbors (BBKNN) to adjust the expression graph topology. However, if applied indiscriminately, these methods introduce a high risk of **overcorrection**, a state where distinct spatial niches or microenvironmental gradients are artificially compressed or forced to mix to minimize batch-specific variance.
-
-#### The Overcorrection Dilemma
-Mathematically, the integration optimization problem can be framed as a multi-objective optimization function under tension. Let $BM \in [0, 1]$ represent the normalized batch mixing entropy across all resolved communities $K$, and let $SI \in [0, 1]$ denote the spatial structural invariance metric calculated via the Frobenius norm distance of localized spatial co-occurrence matrices across replicates.
-
-Standard single-cell integration benchmarks typically optimize for a balance between batch clearance and cell-type conservation. In spatial single-cell pipelines, however, we enforce a strict **Defensive Architecture Pattern** (Overcorrection Safety Check) because technical alignment must never happen at the expense of tissue topography.
-
-#### Automated Defensive Guardrail Mechanics
-To operationalize this safeguard, the pipeline executes a parallel evaluation graph before committing the final adjacency matrix to the root `mu.MuData` asset. 
-
-1. **Baseline Graph Construction**: Compute the uncorrected global neighbor graph $G_{\text{neigh}}$ using standard principal component projections, yielding a reference spatial structural invariance score $SI_{\text{neighbors}}$.
-2. **Integrated Graph Construction**: Compute the batch-balanced graph $G_{\text{bbknn}}$ conditioned on the user-defined `batch_key`, yielding the integrated spatial structural invariance score $SI_{\text{bbknn}}$.
-3. **Delta Degradation Evaluation**: Calculate the absolute structural degradation coefficient $\Delta_{\text{spatial}}$:
-   $$\Delta_{\text{spatial}} = SI_{\text{neighbors}} - SI_{\text{bbknn}}$$
-
-The execution framework evaluates $\Delta_{\text{spatial}}$ against a strict mathematical degradation tolerance threshold $\theta$:
-$$\text{Condition: } \Delta_{\text{spatial}} > \theta$$
-
-If the condition evaluates to true, an automated fallback mechanism triggers. The pipeline rejects the BBKNN graph topology, logs an overcorrection anomaly trace via the centralized logger, and restores the standard $G_{\text{neigh}}$ matrix. This guarantees that spatial niches remain topologically stable across identical tissue environments.
-
-#### Methodological Origins
-This defensive paradigm adapts the core validation principles established by the **scIB (single-cell Integration Benchmark)** framework formulated by Luecken et al. (2022) [7]. While the original scIB framework measures biological conservation using transcriptomic silhouettes and cell-type labels, our implementation extends this logic to spatial coordinates by substituting categorical variance tests with a structural matrix distance evaluation over spatial proximity networks derived via Liana+.
 
 ### Overcorrection and Batch Integration Caveats in Spatial Contexts
 
