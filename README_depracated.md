@@ -80,3 +80,20 @@ tests/
     └── test_runner.py
 ```
 
+
+
+
+# NOTATKI 
+
+## Miejsce ze schematami:
+
+[github folder with schema.xsd](https://github.com/PhysiCell-Tools/PhysiCell-Studio/tree/main/examples)
+
+
+## Modele
+
+### Odległości przestrzenne
+
+`spot_diameter_fullres`
+- jest to średnica spotka sekwencywencjnego, gdzie jego fizyczna wartość jest ustalona na $55\mu m$ daje nam to przelicznik pomiędzy 
+  - UWAGA: nie mogę znaleźć tej informacji wedłg chata to jest łatwo dostępne ...    

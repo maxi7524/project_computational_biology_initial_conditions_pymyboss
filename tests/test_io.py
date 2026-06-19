@@ -1,7 +1,8 @@
 import os
 import pytest
 import numpy as np
-from OmniPhysiBoSS.io.anndata_io import AnnDataParser
+# from OmniPhysiBoSS.io.mdata import AnnDataParser
+from OmniPhysiBoSS.io.mdata import run_mdata_processing_pipeline
 from tests.mock_data import create_mock_anndata
 
 def test_load_data_file_not_found() -> None:

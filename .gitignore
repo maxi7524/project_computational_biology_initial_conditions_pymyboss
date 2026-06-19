@@ -5,6 +5,7 @@ external
 .env
 .ipynb_checkpoints/
 src/MaBossSpatial
+resources/databases/*
 
 # ???
 .DS_Store

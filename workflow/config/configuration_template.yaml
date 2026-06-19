@@ -1,0 +1,10 @@
+# Configuration boundaries for OmniPhysiBoSS models execution
+models:
+  cell_types:
+    strategy: "pre_annotated" # Options: ["pre_annotated", "unsupervised_clustering", "marker_mapping"]
+    target_annotation_key: "cell_type" # Key inside mdata.mod['rna'].obs container
+    mechanics_fallback:
+      cell_cell_adhesion_strength: 0.4
+      cell_cell_repulsion_strength: 10.0
+      relative_maximum_adhesion_distance: 1.2
+    spatial_resolution_micron: 1.0 # Spatial distance metric scaling factor
