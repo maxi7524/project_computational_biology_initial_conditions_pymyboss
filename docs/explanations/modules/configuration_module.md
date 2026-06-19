@@ -1,5 +1,8 @@
 ## PhysiCell and PhysiBoSS Configuration Explained
 
+
+#TODO - to będzie trzeba przepisać ponieważ znacząco funkcjonlaność cały kod tutaj zmienił. 
+
 This documentation outlines the of the multi-scale agent-based modeling configuration framework utilized by PhysiCell and its Boolean network extension, PhysiBoSS.
 
 #TODO - przepisać ten fragment 
