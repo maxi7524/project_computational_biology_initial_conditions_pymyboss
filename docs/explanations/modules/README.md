@@ -1,6 +1,7 @@
 Markdown
 # Software Architecture & Library Modules
 
+REMARK: Currently wrapper module need to be rebuild, 
 
 The `OmniPhysiBoSS` framework is constructed using an decoupled, modular architecture. It allows for modification of certain parts.
 
@@ -63,59 +64,8 @@ An orchestration layer that programmatically builds, alters, and manages standal
 ### 4. [Wrappers Module](./wrappers_module.md)
 Orchestrates low-level environment deployment, clears stale execution directories, initializes compiler building steps via Makefile execution, forks the native child process, and pipes filtered telemetry back to standard output streams.
 
----
+<!-- ---
 
 ## Specific Modules Specification
 
-### Wrappers Module
-
-```markdown
-```{include} ./wrappers_module.md
-:start-after: "### Abstract Functionality"
-:end-before: "###"
-```
-```
-
-
-
-
-***
-***
-***
-
-# Deprecated
-
-# Modules documentation
-
-
-
-## Idea behind 
-Opis jaka jest idea czyli:
-
-biblioteka dzieli się na niezależne moduły, (wypisać to jest: `configurators` `io` `models` `wrappers`, (można też pominąć) (na ten moment te potem dpoisze)). Moduł `configurators`,  `wrappers `  służą do przygotwoania danych do skorzystania z `PhysiBoSS`. Odzielnie mamy `io` i `models` którym zadaniem jets zapewnienie kompatybilności z formatami, oraz modele które zczytują odpowiednie dane.
-
-## Information flow 
-Taki rysunek jak robiłęś z tymi ramkani
-
-io (to będzie dekorator mdata, który zapewnia dobry format oraz waliduje dane i informuje co jest źle wstawione oraz jest właściwie helperem do modeli) -> models (to będzie moduł z różnymni modelami, będziemy importować każdy model osobno, każdy będzie ustandaryzowany ale jeszcze nie wiem jak - zostawić na to miejsce do uzupełeniina - to będą jakieś określone wymagane funkcje które moduł musi zwrócić, żęby był walid (trzeba by zrobić taki abstract klase na moduł? )) -> configurators (to jest / rozwija się moduł, który będzie implementował - konfiguracje modeli maboss, konfiguracje modeli physicell, i funkcje pomocnicze, które będą służyły do odpowiednio zarządzania danymi żeby to były pojedynczymi funkcjami można było tym zarządzać) -> wrappers (to będzie fragment moduł odpowiedzialny za uruchomeinie `Physicell`' za pomocą skryptu w pythonie, zarządza odpowiednim przeniesieniem danych, żeby config się nie popsuł, oraz uruchamia `Physicell` i zbiera logi) 
-
-(jak będą jeszcze jakieś to je dodam) 
-
-
-
-i jeszcze:
-- wszędzie w tych ramkach configuration module  ja bym wstawił linki do tych modułów 
-- fajnie że dodałeś  te skrypty wykonawcze, taki szablon mi się podoba (zrób zarys tego co napisałeś, tak żę jak będę to później aktualizował to będzie ławo wytłumaczyć jak to uzupełniać)
-
-
-
-## Specific modules:
-
-### Wrappers module
-
-```{include} ./wrappers_module.md
-:start-after: "### Abstract Functionality"
-:end-before: "###"
-```
-
-...
+#TODO write here comprehensive description of all modules. -->

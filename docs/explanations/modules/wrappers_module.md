@@ -2,6 +2,8 @@
 
 ## Introduction
 
+REMARK: This document is depracated, now we do simulations using external library 
+
 ### Abstract Functionality
 
 The `wrappers` module serves as the functional bridge between high-level Python pipeline operations and the low-level, compiled C++ multi-scale engine (`PhysiBoSS`). The module transfers the model from our target folder to the downloaded `external/PhysiBoSS` repository for its simulation. It validates settings, captures logs, and ensures the transfer of result files to the folder specified in the target file (by default `output`).
