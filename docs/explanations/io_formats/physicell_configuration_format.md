@@ -2,6 +2,8 @@
 
 This document defines the structural architecture of the PhysiCell/PhysiBoSS XML configuration file. It serves as the formal blueprint for `PhysiCellAgentConfigurator` class ( in moduel #TODO - moduł lepiej odnieść i klase) responsible for model initialization. 
 
+> REMARK: Those informations are also available at [link](https://github.com/PhysiBoSS/PhysiBoSS/blob/master/documentation-deprecated/User_Guide.pdf). I just did not 
+
 ---
 
 ## 1. Global Simulation Controls & Execution Framework

@@ -1,12 +1,7 @@
 ## PhysiCell and PhysiBoSS Configuration Explained
 
 
-#TODO - to będzie trzeba przepisać ponieważ znacząco funkcjonlaność cały kod tutaj zmienił. 
-
-This documentation outlines the of the multi-scale agent-based modeling configuration framework utilized by PhysiCell and its Boolean network extension, PhysiBoSS.
-
-#TODO - przepisać ten fragment 
-#TODO - to będzie dokumetncja dotycząca ostatecznie zdefiniowanego modelu, będzie trzeba tutaj w każdym zrobić sekcje #### Explanation / #### Implementation czy coś takiego (bo chodzi o to, że jaka jest idea tej struktury i jak my do niej parametry dobraliśmy) 
+#TODO - ta część jest nieaktualna, trzeba zmienić kod ponieważ teraz mamy dostęp do schema.xsd co pozwala łatwiej zarządzać całą klasą. 
 
 ### 1. Domain and Environment Architecture
 

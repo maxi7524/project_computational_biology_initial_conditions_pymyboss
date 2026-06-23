@@ -3,7 +3,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 
 # Core application and asset dependency structures
-from OmniPhysiBoSS.configurators import MaBoSSModelConfigurator
+from OmniPhysiBoSS.configurate import MaBoSSModelConfigurator
 from tests.mock_data import (
     get_maboss_bnd_mock_string, 
     get_maboss_cfg_mock_string,

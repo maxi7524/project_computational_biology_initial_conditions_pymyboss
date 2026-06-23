@@ -4,20 +4,27 @@
 
 ### Abstract Functionality
 
-The `io` module is responsible for the integration, harmonization, and annotation of multi-modal omics datasets. **Crucially, this module exclusively operates on and handles high-dimensional `mu.MuData` containers; it does not natively support or process individual `anndata.AnnData` objects at its top-level entry points.** Its primary objective is to take disparate data layers (such as single-cell transcriptomics and spatial profiling matrices), execute cross-modality barcode synchronization via mathematical inner joins, and automatically enrich the unified container with curated intercellular communication metrics (`LIANA+`) and signed, directed intracellular signaling networks (`OmniPath`).
+The `io` module is responsible for the integration, harmonization, and annotation of multi-modal omics datasets. **Crucially, this module exclusively operates on and handles high-dimensional `mu.MuData` containers; it does not natively support or process individual `anndata.AnnData` objects at its top-level entry points.** Its primary objective is to take disparate data layers (such as single-cell transcriptomics and spatial profiling matrices), execute cross-modality barcode synchronization via mathematical inner joins, and automatically enrich the unified container with curated intercellular communication metrics (`LIANA+`), signed, directed intracellular signaling networks (`OmniPath`), and spatial graph community partitions.
+
+For complete structural layout specifications of these internal structures, data frames, and dictionaries embedded within the resulting container slots, refer directly to the centralized [Internal IO Module Formats Spec](https://www.google.com/search?q=docs/explanations/io_formats/README.md).
 
 ### Structure
 
-The exact directory layout of the `io` module is structured as follows:
+The exact directory layout of the `io` module is structured as follows (excluding runtime Python cache files):
 
 ```plaintext
-maxi7524@DESKTOP-NKT8D63:~/repositories/project_computational_biology_initial_conditions_pymyboss/src/OmniPhysiBoSS/io$ tree
+maxi7524@DESKTOP-NKT8D63:~/repositories/project_computational_biology_initial_conditions_pymyboss/src/OmniPhysiBoSS/io$ tree -I "__pycache__"
 .
 ├── __init__.py
 └── mdata
     ├── __init__.py
     ├── mdata_pipeline.py
     └── utils
+        ├── __init__.py
+        ├── clustering
+        │   ├── __init__.py
+        │   └── leiden_clustering.py
+        ├── common.py
         ├── signalling_pathways
         │   ├── __init__.py
         │   ├── intracelluar_network.py
@@ -40,26 +47,16 @@ Detailed functional responsibilities of each module and script:
 
 * `io/__init__.py`: Initializes the top-level input/output namespace.
 * `io/mdata/__init__.py`: Exposes the public API for multi-modal processing, specifically binding the main facade function `run_mdata_processing_pipeline`.
-* `io/mdata/mdata_pipeline.py`: Contains the core execution pipeline framework. It orchestrates the entire workflow by sequentially invoking data remapping, subset harmonization, neighbor graph calculations, and network injection modules.
-* `io/mdata/utils/signalling_pathways`: Sub-package dedicated to external molecular database interactions and biological network curation.
-* `intracelluar_network.py`: Implements `fetch_intracellular_pathway_network`, which programmatically queries OmniPath to pull down, filter, and format directed, signed signaling interaction cascades (kinase/phosphatase and transcription factor downstream networks).
-* `ligand_receptor_annotation.py`: Implements `fetch_liana_interactions`, which cross-references computed cell-cell communication outputs with deep structural interaction metadata attributes sourced from external repositories.
-
-
-* `io/mdata/utils/spatial`: Sub-package handling spatial neighborhood graphs and multi-scale localized calculations.
-* `liana_multimodal_pipeline.py`: Implements `run_liana_multimodal_pipeline`, executing cell-to-cell contact and neighborhood communication modeling (bivariate cross-correlation engine) using `LIANA+` constraints.
-
-
-* `io/mdata/utils/unify`: Sub-package responsible for rigorous matrix alignment and index synchronization.
-* `unify_modalities.py`: Implements `unify_multimodal_data`, performing a strict mathematical intersection (inner join) across distinct single-cell modalities to guarantee identical cellular tracking arrays.
-* `validate_unify_modalities_overlap_failure.py`: Implements `validate_separated_modalities_overlap`, providing diagnostic auditing tools to identify exactly which omics layer acts as a complete bottleneck when overlapping cell counts drop to zero.
-
-
-* `io/mdata/utils/validate`: Sub-package reserved for structural layout assertions and schema evaluation.
-* `mdata_types.py`: Defines `OMNI_PHYSIBOSS_SCHEMA` and `EXPECTED_TYPE_SIGNATURES` which formalize required data frames, slot labels, and mandatory cell-level annotation flags.
-* `mdata_validator.py`: Implements `verify_structural_presence` to check the validity of individual slots and metadata blocks prior to pipeline initialization.
-
-
+* `io/mdata/mdata_pipeline.py`: Contains the core execution pipeline framework. It orchestrates the entire workflow by sequentially invoking data remapping, subset harmonization, neighbor graph calculations, network injection, and spatial community detection modules.
+* `io/mdata/utils/common.py`: Implements shared lower-level container synchronization functions, such as `safe_synchronize_mudata_layers`, handles backward-compatible `mudata.update()` routing graphs, and intercepts legacy framework future warnings.
+* `io/mdata/utils/clustering/leiden_clustering.py`: Implements `compute_leiden_partitions`, which partitions spatial neighbor graphs into discrete spatial communities via the Leiden algorithm to establish categorical cellular typing references.
+* `io/mdata/utils/signalling_pathways/intracelluar_network.py`: Implements `fetch_intracellular_pathway_network`, which programmatically queries OmniPath to pull down, filter, and format directed, signed signaling interaction cascades (kinase/phosphatase and transcription factor downstream networks). See [Intracellular Signaling Specification](https://www.google.com/search?q=docs/explanations/io_formats/mdata_pipeline.md) for output edgelist schemas.
+* `io/mdata/utils/signalling_pathways/ligand_receptor_annotation.py`: Implements `fetch_liana_interactions`, which cross-references computed cell-cell communication outputs with deep structural interaction metadata attributes sourced from external repositories, resolving unmapped elements to explicit pythonic `None` tokens.
+* `io/mdata/utils/spatial/liana_multimodal_pipeline.py`: Implements `run_liana_multimodal_pipeline`, executing cell-to-cell contact and neighborhood communication modeling (bivariate cross-correlation engine) using `LIANA+` constraints.
+* `io/mdata/utils/unify/unify_modalities.py`: Implements `unify_multimodal_data`, performing a strict mathematical intersection (inner join) across distinct single-cell modalities to guarantee identical cellular tracking arrays. Detailed mechanics are available in [Multimodal Unification Logic](https://www.google.com/search?q=docs/explanations/io_formats/unify_modalities.md).
+* `io/mdata/utils/unify/validate_unify_modalities_overlap_failure.py`: Implements `validate_separated_modalities_overlap`, providing diagnostic auditing tools to identify exactly which omics layer acts as a complete bottleneck when overlapping cell counts drop to zero. Detailed metrics are tracked in [Overlap Diagnostic Metrics](https://www.google.com/search?q=docs/explanations/io_formats/validate_unify_modalities_overlap_failure.md).
+* `io/mdata/utils/validate/mdata_types.py`: Defines `OMNI_PHYSIBOSS_SCHEMA` and `EXPECTED_TYPE_SIGNATURES` which formalize required data frames, slot labels, and mandatory cell-level annotation flags.
+* `io/mdata/utils/validate/mdata_validator.py`: Implements `verify_structural_presence` to check the validity of individual slots and metadata blocks prior to pipeline initialization.
 
 ### Execution Pipeline
 
@@ -85,6 +82,8 @@ The step-by-step sequential data flow within the execution potok proceeds as fol
                                 ↓
      Intercellular Ligand-Receptor Coordinate Annotation
                                 ↓
+          Spatial Cluster Graph Partitions (Leiden Algorithm)
+                                ↓
         Global Structure State Re-indexing (mudata.update())
                                 ↓
            Output: Fully Aligned & Annotated MuData Asset
@@ -93,7 +92,7 @@ The step-by-step sequential data flow within the execution potok proceeds as fol
 
 #### Technical Debt & Validation Warnings:
 
-> ⚠️ **CRITICAL DEVELOPMENT NOTE:** The structural validation submodule located at `io/mdata/utils/validate/mdata_validator.py` **is currently non-functional**. The function `verify_structural_presence` behaves too rigidly, triggering false-positive structural mismatch exceptions and rejecting valid multi-modal inputs even when required data slots are present. As a temporary workaround, this validation stage has been explicitly commented out and disabled within the main execution routine (`mdata_pipeline.py`). Users are fully responsible for manually auditing and ensuring structural layout consistency across their input `MuData` modalities before executing the potok.
+CRITICAL DEVELOPMENT NOTE: The structural validation submodule located at `io/mdata/utils/validate/mdata_validator.py` is currently non-functional. The function `verify_structural_presence` behaves too rigidly, triggering false-positive structural mismatch exceptions and rejecting valid multi-modal inputs even when required data slots are present. As a temporary workaround, this validation stage has been explicitly commented out and disabled within the main execution routine (`mdata_pipeline.py`). Users are fully responsible for manually auditing and ensuring structural layout consistency across their input `MuData` modalities before executing the potok.
 
 ## Submodule Specifications
 
@@ -147,6 +146,16 @@ The step-by-step sequential data flow within the execution potok proceeds as fol
 
 ```
 
+### leiden_clustering
+
+```{eval-rst}
+.. automodule:: OmniPhysiBoSS.io.mdata.utils.clustering.leiden_clustering
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+```
+
 ## Developer & Modification Guide
 
 ### Usage blueprint
@@ -167,7 +176,9 @@ processed_mdata = run_mdata_processing_pipeline(
     main_modality="rna",
     liana_uns_key="liana_res",
     intercell_output_key="intercellular_metadata_registry",
-    intracellular_output_key="omnipath_intracellular"
+    intracellular_output_key="omnipath_intracellular",
+    leiden_resolution=0.8,
+    target_cluster_key="spatial_leiden_clusters"
 )
 
 # The returned processed_mdata object features synchronized observation names
@@ -177,4 +188,4 @@ processed_mdata = run_mdata_processing_pipeline(
 
 ### Tests
 
-> 🚧 **PROJECT STATUS NOTE:** The unit tests and automation testing frameworks for the mathematical data transformations, inner-join compliance validations, and external API retrieval states within the `io` module **have not been implemented yet**. Writing complete test suits for matrix intersection invariants and mock network behaviors remains an active task for future development.
+PROJECT STATUS NOTE: The unit tests and automation testing frameworks for the mathematical data transformations, inner-join compliance validations, and external API retrieval states within the `io` module have not been implemented yet. Writing complete test suits for matrix intersection invariants and mock network behaviors remains an active task for future development.

@@ -1,49 +1,53 @@
-
 # OmniPhysiBoSS
+
+> ⚠️ **Project Status Notice:** This library is **not fully completed**. Active development on the dynamic translation of high-dimensional transcriptomic states into functional MaBoSS phenotype vertices is currently halted due to methodological constraints in deriving time-dependent phenotype transitions from static scRNA-seq datasets. However, the structural core, including physical spatial domain mappings, coordinate translations, and omics data parsing layouts—is fully functional and preserved.
 
 ***
 
 ## Introduction
 
-#TODO - poprawić sekcje 
+Standard multi-scale computational models within the PhysiCell and PhysiBoSS simulation suites are traditionally constructed using parameter values derived from generic literature sources to replicate generalized cell behaviors. While these models allow researchers to simulate external perturbations, such as drug administrations, to observe whether a specific stimulus inhibits a particular biochemical pathway, they possess a critical methodological limitation: they do not reflect the unique physical or molecular state of a specific organism, nor do they capture downstream disruptions across collateral signaling pathways and their collective impact on tissue morphology.
 
-### Short description
+The **OmniPhysiBoSS** library extends the capabilities of the PhysiBoSS simulator by automating patient-specific model personalization and parameterization using multi-modal single-cell and spatial transcriptomics datasets. By anchoring agent initial conditions directly within raw spatial tissue geometry and high-throughput molecular footprints, the framework provides a structured pipeline to translate static experimental datasets into reproducible multi-scale simulations.
 
-#TODO POPRAWIĆ 
+### Short Description
 
-OmniPhysiBoSS is library which creates `PhysiBoSS` models based on given configuration. It allows to create models for `PhysiBoSS` from scratch in by using python code. Repository also contains prepared pipeline to for simulating spatial-sc tissue (#TODO - to co przewiduja te modele...) which, were i created of maboss models and intercelluar communication, from scratch based on `Omnitpath` and `decoupleR` references.  
-
-OmniPhysiBoSS is a Python library designed to programmatically generate and configure multi-scale PhysiBoSS models. It enables to construct complex agent-based models from scratch directly via Python code. The repository also includes a streamlined execution pipeline for simulating single-cell tissue dynamics. 
-#TODO - porawić
-This pipeline automates the generation of Boolean intracellular networks (MaBoSS) and intercellular signaling interactions by leveraging state-of-the-art reference data from OmniPath and decoupleR .
+OmniPhysiBoSS is a Python library designed to programmatically generate, configure, and orchestrate multi-scale PhysiBoSS models directly via an automated API. The framework streamlines the initialization of agent-based microenvironments by unifiying cellular and spatial data layers. It establishes programmatic infrastructure to construct intracellular logic models (MaBoSS) and resolve cell-cell signaling interactions from scratch, leveraging state-of-the-art reference data from OmniPath and decoupleR.
 
 ### Key insights 
 
-- (#TODO - later) - Integration with `PhysiBoSS` via python code allowing to:
-  - ...
-  -fds
-- basic model for sc-spatial simulations, allowing to examine possible states / outcomes of tissue fragment
-
-- **Pythonic Model Generation:** Native programmatic interaction with the PhysiBoSS C++ core engine, eliminating the need for manual XML configuration.
-- **Multi-Scale Spatial Simulations:** Modeling framework to evaluate tissue-level behaviors, state transitions, and spatial cellular patterns from single-cell transcriptomics data.
-
+* **Programmatic Model Configuration:** Complete generation and initialization of structured PhysiCell and PhysiBoSS XML, BND, and CFG configuration assets directly from native Python data structures.
+* **Modular Pipeline Architecture:** A decoupled design pattern that allows developers to modify, override, or replace individual computational steps (such as domain extraction or normalization) without disrupting the global pipeline orchestration.
+* **Spatial Invariant Ingestion:** Automated translation of high-resolution pixel coordinates into physical micrometer coordinates based on spatial technology dimensions (e.g., Visium spot diameter properties).
 
 ### Goal & Motivation
 
-My motivation was create models, which simulates inter-cellular communication on given sc-spatial data. I used already state-of-art model `PhysiBoSS` to simulate environment and figure out part responsible for giving initial conditions, based on several modalities, that is:
--( #TODO - later tutaj muszę wypisać ponieważ ta część nie jest jeszcze gotowa) 
+My motivation was to create models that simulate inter-cellular communication on given single-cell spatial data. I utilized the state-of-the-art `PhysiBoSS` model to simulate the environment and isolate the functional components responsible for establishing initial conditions based on several biological modalities. 
 
-The primary objective of OmniPhysiBoSS is to orchestrate intercellular and intracellular communication networks within highly resolved spatial single-cell datasets . By integrating state-of-the-art agent-based environments (PhysiCell/PhysiBoSS) with functional omics footprints (decoupleR, LIANA+, OmniPath), the framework automates the generation of baseline constraints, initial cellular states, and spatial initial conditions across distinct tissue modalities.
-
-<!-- Tutaj est to lepiej napisne   -->
-
-
+The primary objective of OmniPhysiBoSS is to orchestrate intercellular and intracellular communication networks within highly resolved spatial single-cell datasets. By integrating agent-based environments with functional omics footprints (decoupleR, LIANA+, OmniPath), the framework automates the generation of baseline constraints, initial cellular states, and spatial initial conditions across distinct tissue modalities.
 
 ***
 
-## Table of contents 
+## Table of Contents
+- **[Io Formats](docs/explanations/io_formats/README.md)**
+  - [Maboss Configuration Format](docs/explanations/io_formats/maboss_configuration_format.md)
+  - [Physicell Configuration Format](docs/explanations/io_formats/physicell_configuration_format.md)
+  <!-- - [Physicell Output Format](docs/explanations/io_formats/physicell_output_format.md) 
+  #TODO - this will be after all analysis will be completed-->
+- **[Methodology](docs/explanations/methodology/README.md)**
+  - [Cell Types](docs/explanations/methodology/cell_types.md)
+  - [Component Docs Template](docs/explanations/methodology/component_docs_template.md)
+  - [Domain Type](docs/explanations/methodology/domain_type.md)
+  - [Overall Type](docs/explanations/methodology/overall_type.md)
+- **[Modules](docs/explanations/modules/README.md)**
+  <!-- - [Configuration Module](docs/explanations/modules/configuration_module.md)
+  #TODO - this one is depracated, we will implement other version based on schema file. -->
+  - [Io Module](docs/explanations/modules/io_module.md)
+  - [Models Module](docs/explanations/modules/models_module.md)
+  - [Module Docs Template](docs/explanations/modules/module_docs_template.md)
+  <!-- - [Wrappers Module](docs/explanations/modules/wrappers_module.md) 
+  #TODO - depracated, now we are using other library for this management-->
 
-#TODO - do it with markdown-toc generator 
 
 *** 
 
@@ -66,11 +70,10 @@ To reproduce results from `report.pdf` go to  `docs/how_to/base_model-reproducti
 
 ***
 
-### comprehensive  explanation of documentation & methodology
+<!-- ### comprehensive  explanation of documentation & methodology
 
-<!-- Here is explanations folder brief summary -->
+#TODO Here is explanations folder brief summary -->
 
-#TODO - napisć żę dokładnie to jest opisane tam i tam 
 
 ### Environment setup and activation
 
@@ -135,7 +138,7 @@ Contributions to OmniPhysiBoSS are welcome. Please read `CONTRIBUTING.md` for de
 
 If you use OmniPhysiBoSS in your research, please cite this framework alongside the foundational upstream multi-scale engines :
 
-* **OmniPhysiBoSS (This Framework):** Stróżyk M, et al. (2026). OmniPhysiBoSS: Programmatic Generation and Orchestration of Multi-Scale Spatial Boolean Microenvironment Models.
+<!-- * **OmniPhysiBoSS (This Framework):** Stróżyk M, et al. (2026). OmniPhysiBoSS: Programmatic Generation and Orchestration of Multi-Scale Spatial Boolean Microenvironment Models. -->
 * **PhysiBoSS (Multi-Scale Core Engine):** Ponce-de-Leon M, et al. *Bioinformatics*, 2023. DOI: [10.1038/s41540-023-00314-4](https://doi.org/10.1038/s41540-023-00314-4) .
 * **PhysiCell (Spatial Agent-Based Framework):** Ghaffarizadeh A, et al. *PLoS Computational Biology*, 2018. DOI: [10.1371/journal.pcbi.1005991](https://doi.org/10.1371/journal.pcbi.1005991) .
 * **MaBoSS (Continuous-Time Boolean Core):** Stoll G, et al. *Bioinformatics*, 2017. DOI: [10.1093/bioinformatics/btx139](https://doi.org/10.1093/bioinformatics/btx139) .
@@ -147,6 +150,6 @@ If you use OmniPhysiBoSS in your research, please cite this framework alongside 
 ## Author
 **Max Stróżyk** - University of Warsaw
 
-## License
-This project is licensed under the MIT License - see the `LICENSE` file for details.
+<!-- ## License
+#TODO - add when library is finished -->
 

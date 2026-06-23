@@ -4,7 +4,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 
 # Core application and asset dependency structures
-from OmniPhysiBoSS.configurators import PhysiCellAgentConfigurator
+from OmniPhysiBoSS.configurate import PhysiCellAgentConfigurator
 from tests.mock_data import (
     get_reference_mock_xml_string,
     get_multi_model_mock_xml_string,

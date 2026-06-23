@@ -1,6 +1,7 @@
 Markdown
 # Software Architecture & Library Modules
 
+> REMARK: Currently wrapper module need to be rebuild as we find 'UQ-PhysiCell' library which manages simulation in PhysiBoSS. We also need to rewrite configuration module as now we obtained .xsd file which allows us to create much cleaner version. Previous one was created from scratch. 
 
 The `OmniPhysiBoSS` framework is constructed using an decoupled, modular architecture. It allows for modification of certain parts.
 
@@ -54,68 +55,20 @@ The execution lifecycle transitions sequentially through four functional boundar
 ### 1. [IO Module](./io_module.md)
 Acts as an initial validation layer and metadata decorator. It ingests raw configuration structures, checks text formats, validates spatial constraints, and handles descriptive error parsing to provide clear feedback during execution bottlenecks.
 
-### 2. [Models Module](./models_module.md)
+<!-- ### 2. [Models Module](./models_module.md) -->
+### 2. Models Module
 Houses standalone, standardized computational abstractions. Every independent simulation model inherits from a rigid abstract base class wrapper to guarantee structural and functional validity before entering down-stream compilers.
 
-### 3. [Configurators Module](./configurators_module.md)
+<!-- ### 3. [Configurators Module](./configurators_module.md) -->
+### 3. Configurators Module
 An orchestration layer that programmatically builds, alters, and manages standalone input profiles for MaBoSS networks and PhysiCell spatial engines. It abstracts complex XML transformations into simple, atomic functional commands.
 
-### 4. [Wrappers Module](./wrappers_module.md)
+<!-- ### 4. [Wrappers Module](./wrappers_module.md) -->
+### 4. Wrappers Module
 Orchestrates low-level environment deployment, clears stale execution directories, initializes compiler building steps via Makefile execution, forks the native child process, and pipes filtered telemetry back to standard output streams.
 
----
+<!-- ---
 
 ## Specific Modules Specification
 
-### Wrappers Module
-
-```markdown
-```{include} ./wrappers_module.md
-:start-after: "### Abstract Functionality"
-:end-before: "###"
-```
-```
-
-
-
-
-***
-***
-***
-
-# Deprecated
-
-# Modules documentation
-
-
-
-## Idea behind 
-Opis jaka jest idea czyli:
-
-biblioteka dzieli się na niezależne moduły, (wypisać to jest: `configurators` `io` `models` `wrappers`, (można też pominąć) (na ten moment te potem dpoisze)). Moduł `configurators`,  `wrappers `  służą do przygotwoania danych do skorzystania z `PhysiBoSS`. Odzielnie mamy `io` i `models` którym zadaniem jets zapewnienie kompatybilności z formatami, oraz modele które zczytują odpowiednie dane.
-
-## Information flow 
-Taki rysunek jak robiłęś z tymi ramkani
-
-io (to będzie dekorator mdata, który zapewnia dobry format oraz waliduje dane i informuje co jest źle wstawione oraz jest właściwie helperem do modeli) -> models (to będzie moduł z różnymni modelami, będziemy importować każdy model osobno, każdy będzie ustandaryzowany ale jeszcze nie wiem jak - zostawić na to miejsce do uzupełeniina - to będą jakieś określone wymagane funkcje które moduł musi zwrócić, żęby był walid (trzeba by zrobić taki abstract klase na moduł? )) -> configurators (to jest / rozwija się moduł, który będzie implementował - konfiguracje modeli maboss, konfiguracje modeli physicell, i funkcje pomocnicze, które będą służyły do odpowiednio zarządzania danymi żeby to były pojedynczymi funkcjami można było tym zarządzać) -> wrappers (to będzie fragment moduł odpowiedzialny za uruchomeinie `Physicell`' za pomocą skryptu w pythonie, zarządza odpowiednim przeniesieniem danych, żeby config się nie popsuł, oraz uruchamia `Physicell` i zbiera logi) 
-
-(jak będą jeszcze jakieś to je dodam) 
-
-
-
-i jeszcze:
-- wszędzie w tych ramkach configuration module  ja bym wstawił linki do tych modułów 
-- fajnie że dodałeś  te skrypty wykonawcze, taki szablon mi się podoba (zrób zarys tego co napisałeś, tak żę jak będę to później aktualizował to będzie ławo wytłumaczyć jak to uzupełniać)
-
-
-
-## Specific modules:
-
-### Wrappers module
-
-```{include} ./wrappers_module.md
-:start-after: "### Abstract Functionality"
-:end-before: "###"
-```
-
-...
+#TODO write here comprehensive description of all modules. -->
